@@ -35,6 +35,7 @@ void setup_graphics() {
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	window = glfwCreateWindow(800, 600, "ClearOut", NULL, NULL);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 
