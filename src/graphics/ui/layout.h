@@ -113,29 +113,12 @@ class VerticalFlowLayoutManager : public LayoutManager {
 protected:
 	ScreenCoord margin;
 public:
-	VerticalFlowLayoutManager(ScreenCoord margin = 5) :
+	VerticalFlowLayoutManager(ScreenCoord margin = 15) :
 		margin(margin) {}
 
 	virtual void layout(Component&) override;
 	virtual Size compute_preferred_size(Component&) override;
 };
-
-///*
-// * Positions children in a horizontal array. Width is set to maximum preferred
-// * height of all children, width is set to preferred width per child. A margin
-// * is inserted between the children and around the children. Array is centered
-// * within parent.
-// */
-//class HorizontalFlowLayoutManager : public LayoutManager {
-//protected:
-//	ScreenCoord margin;
-//public:
-//	HorizontalFlowLayoutManager(ScreenCoord margin = 5) :
-//		margin(margin) {}
-//
-//	virtual void layout(Component&) override;
-//	virtual Size compute_preferred_size(Component&) override;
-//};
 
 
 #endif /* LAYOUT_H_ */

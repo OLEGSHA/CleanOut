@@ -117,7 +117,7 @@ void Glyphs::put(char c, const Glyph* glyph) {
 	contents[get_index(c)] = glyph;
 }
 
-Glyphs default_glyphs('z', new Glyph(4, 4,
+Glyphs default_glyphs('\xFF', new Glyph(4, 4,
 		new LinePrimitive({0,0}, {0,7}),
 		new LinePrimitive({0,7}, {4,7}),
 		new LinePrimitive({4,7}, {4,0}),
@@ -209,6 +209,10 @@ void register_default_glyphs(Glyphs& output) {
 	));
 	output.put('-', new Glyph(2, 1,
 			new Line({0,3}, {2,3})
+	));
+	output.put('\xA9', new Glyph(5, 2,
+			new Arc ({2.5f, 4.5f}, 2.5f, 0, 2*PI),
+			new Arc ({2.5f, 4.5f}, 1.5f, PI, 2*PI)
 	));
 
 

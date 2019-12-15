@@ -31,6 +31,11 @@ using std::list;
 using std::cerr;
 
 
+extern const char *TITLE;
+extern const char *VERSION;
+extern const char *COPYRIGHT;
+extern const char *FULL_NAME;
+
 /*
  * Checks if min <= x <= max.
  */

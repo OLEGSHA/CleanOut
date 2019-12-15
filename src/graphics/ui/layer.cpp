@@ -19,6 +19,9 @@
 #include "layer.h"
 #include "../graphics.h"
 
+
+const ScreenCoord MARGIN = 15;
+
 Layer::Layer(LayoutManager *manager) :
 	root(new Component("Root", manager)) {} // @suppress("Ambiguous problem")
 
@@ -28,7 +31,12 @@ Layer::~Layer() {
 
 void Layer::render() {
 	set_color(Design::BACKGROUND_TRANSPARENT);
-	fill_rectangle({0, 0}, root->get_bounds().size());
+
+	WindowDimensions dims = get_window_size();
+	fill_rectangle({0, 0}, {
+			static_cast<ScreenCoord>(dims.width),
+			static_cast<ScreenCoord>(dims.height)
+	});
 
 	root->render();
 }
@@ -39,5 +47,8 @@ void Layer::on_key_event(KeyEvent event) {
 
 void Layer::on_resize() {
 	WindowDimensions window_size = get_window_size();
-	root->set_bounds(Box(0, 0, window_size.width, window_size.height));
+	root->set_bounds(Box(
+			MARGIN, MARGIN,
+			window_size.width - 2*MARGIN, window_size.height - 2*MARGIN
+	));
 }

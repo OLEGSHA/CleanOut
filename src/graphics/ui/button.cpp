@@ -33,7 +33,6 @@ Button::Button(const char *name, void (*action)(), LayoutHint hint) :
 		dims.x + 4*MARGIN,
 		dims.y + 2*MARGIN
 	});
-
 }
 
 void Button::render_self() {
@@ -50,7 +49,12 @@ void Button::render_self() {
 
 	{
 		auto drawer = draw_string(Font(32)) << get_name();
-		drawer.render({2*MARGIN, MARGIN});
+
+		Size size = drawer.get_dimensions();
+		drawer.render({
+			(get_bounds().width() - size.x) / 2,
+			(get_bounds().height() - size.y) / 2
+		});
 	}
 }
 

@@ -65,9 +65,9 @@ void show_controls_menu() {
 				)
 		);
 
-		center->add_child(
+		center->add_child(center_component(
 				new Label("Title", "Controls", Font(64), BorderLayoutHints::TOP)
-		);
+		));
 
 		Button *done_button = new Button("Done", remove_top_layer,
 				BorderLayoutHints::BOTTOM);
@@ -82,9 +82,10 @@ void show_main_menu() {
 	remove_all_layers();
 	end_attempt();
 
-	Layer *layer = new Layer(new CenterLayoutManager());
+	Layer *layer = new Layer(new BorderLayoutManager());
 
-	Component *center = new Container("Center", new BorderLayoutManager()); // @suppress("Ambiguous problem")
+	Component *center = new Container("Center",
+			new BorderLayoutManager(), BorderLayoutHints::CENTER);
 	{
 		Component *buttons = new Container("Buttons",
 				new VerticalFlowLayoutManager(), BorderLayoutHints::CENTER);
@@ -99,10 +100,23 @@ void show_main_menu() {
 		center->add_child(buttons);
 
 		center->add_child(
-				new Label("Title", "ClearOut", Font(64), BorderLayoutHints::TOP)
+				new Label("Title", TITLE, Font(96), BorderLayoutHints::TOP)
 		);
 	}
-	layer->get_root()->add_child(center);
+	layer->get_root()->add_child(center_component(center));
+
+	Component *bottom = new Container("Bottom",
+			new BorderLayoutManager(), BorderLayoutHints::BOTTOM);
+	{
+		bottom->add_child(new Label(
+				"FullName", FULL_NAME, Font(24), BorderLayoutHints::LEFT
+		));
+
+		bottom->add_child(new Label(
+				"Copyright", COPYRIGHT, Font(24), BorderLayoutHints::RIGHT
+		));
+	}
+	layer->get_root()->add_child(bottom);
 	add_layer(layer);
 }
 

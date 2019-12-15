@@ -40,7 +40,7 @@ private:
 protected:
 	virtual void render_self() override {
 		set_color(Design::OUTLINE);
-		write_text().render({MARGIN, MARGIN});
+		write_text().render({0, 0});
 	}
 
 public:
@@ -53,11 +53,7 @@ public:
 		width(width),
 		method(method)
 	{
-		Size size = write_text().get_dimensions();
-		set_preferred_size({
-			size.x + 2 * MARGIN,
-			size.y + 2 * MARGIN
-		});
+		set_preferred_size(write_text().get_dimensions());
 	}
 };
 
