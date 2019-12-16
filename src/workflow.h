@@ -25,9 +25,10 @@
 void main_loop();
 
 void show_main_menu();
-void exit();
+void exit_game();
 void start_game();
 void show_results_menu(Game&);
+void pause_game(Game&);
 
 
 #endif /* WORKFLOW_H_ */

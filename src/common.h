@@ -140,7 +140,7 @@ typedef unsigned int Score;
 typedef unsigned int Lives;
 
 enum GameState {
-	RUNNING, VICTORY, DEFEAT
+	RUNNING, PAUSED, VICTORY, DEFEAT
 };
 
 

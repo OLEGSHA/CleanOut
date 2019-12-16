@@ -23,7 +23,7 @@
 
 const ScreenCoord MARGIN = 15;
 
-Button::Button(const char *name, void (*action)(), LayoutHint hint) :
+Button::Button(const char *name, Action action, LayoutHint hint) :
 	Component(name, hint),
 	action(action) {
 

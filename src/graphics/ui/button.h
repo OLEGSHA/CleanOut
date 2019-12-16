@@ -19,20 +19,29 @@
 #ifndef BUTTON_H_
 #define BUTTON_H_
 
+#include <functional>
+
 #include "component.h"
 
 
 class Button : public Component {
 
+	using Action = std::function<void()>;
+
 private:
-	void (*action)();
+	Action action;
 
 protected:
 	virtual void render_self() override;
 	virtual bool on_event(KeyEvent) override;
 
 public:
-	Button(const char *name, void (*action)(), LayoutHint hint = NOT_SPECIFIED);
+//	Button(const char *name, void (*action)(), LayoutHint hint = NOT_SPECIFIED);
+	Button(
+			const char *name,
+			Action action,
+			LayoutHint hint = NOT_SPECIFIED
+	);
 
 	virtual bool is_focusable() const override {
 		return true;

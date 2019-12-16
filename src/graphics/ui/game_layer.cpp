@@ -20,6 +20,7 @@
 
 #include "../graphics.h"
 #include "../../logic/logic.h"
+#include "../../workflow.h"
 
 
 const ScreenCoord MARGIN = 15;
@@ -202,7 +203,6 @@ bool GameComponent::on_event(KeyEvent event) {
 		return true;
 	}
 
-
 	if (
 			(event.key == GLFW_KEY_SPACE)
 			&&
@@ -212,6 +212,14 @@ bool GameComponent::on_event(KeyEvent event) {
 			ball->release();
 		}
 		return true;
+	}
+
+	if (
+			(event.key == GLFW_KEY_ESCAPE)
+			&&
+			(event.action == GLFW_PRESS)
+	) {
+		pause_game(*game);
 	}
 
 	return false;

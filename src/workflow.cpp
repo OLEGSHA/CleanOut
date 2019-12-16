@@ -45,7 +45,7 @@ void start_game() {
 	start_next_level();
 }
 
-void exit() {
+void exit_game() {
 	glfwSetWindowShouldClose(get_window_handle(), GLFW_TRUE);
 }
 
@@ -69,8 +69,11 @@ void show_controls_menu() {
 				new Label("Title", "Controls", Font(64), BorderLayoutHints::TOP)
 		));
 
-		Button *done_button = new Button("Done", remove_top_layer,
-				BorderLayoutHints::BOTTOM);
+		Button *done_button = new Button(
+				"Done",
+				remove_top_layer,
+				BorderLayoutHints::BOTTOM
+		);
 		done_button->grab_focus();
 		center->add_child(center_component(done_button));
 	}
@@ -95,7 +98,7 @@ void show_main_menu() {
 			buttons->add_child(play_button);
 
 			buttons->add_child(new Button("Controls", show_controls_menu));
-			buttons->add_child(new Button("Exit", exit));
+			buttons->add_child(new Button("Exit", exit_game));
 		}
 		center->add_child(buttons);
 
@@ -150,7 +153,7 @@ void show_results_menu(Game& game) {
 			buttons->add_child(play_button);
 
 			buttons->add_child(new Button("Main Menu", show_main_menu));
-			buttons->add_child(new Button("Exit", exit));
+			buttons->add_child(new Button("Exit", exit_game));
 		}
 		center->add_child(buttons);
 
@@ -183,3 +186,43 @@ void show_results_menu(Game& game) {
 
 	add_layer(layer);
 }
+
+void pause_game(Game& game) {
+	game.state = PAUSED;
+
+	Layer *layer = new Layer(new CenterLayoutManager());
+
+	Component *center = new Container("Center", new BorderLayoutManager()); // @suppress("Ambiguous problem")
+	{
+		Component *buttons = new Container("Buttons",
+				new VerticalFlowLayoutManager(), BorderLayoutHints::CENTER);
+		{
+
+
+			Button *play_button = new Button(
+					"Continue",
+					[&game](void) {
+						game.state = RUNNING;
+						remove_top_layer();
+					}
+			);
+			play_button->grab_focus();
+			buttons->add_child(play_button);
+
+			buttons->add_child(new Button("Main Menu", show_main_menu));
+			buttons->add_child(new Button("Exit", exit_game));
+		}
+		center->add_child(buttons);
+
+		center->add_child(center_component(
+				new Label(
+						"Title", "Game paused",
+						Font(64), BorderLayoutHints::TOP
+				)
+		));
+	}
+	layer->get_root()->add_child(center);
+
+	add_layer(layer);
+}
+
