@@ -201,7 +201,9 @@ void Level::collide(Game& context, LevelBlock pos, Ball& ball) {
 							: pos_float.x,
 						collides_vertically ? NULL : &context
 				);
-			} else { // collides_vertically
+			}
+
+			if (collides_vertically) {
 				ball.bounce_y(
 						should_bounce_positive_y,
 						should_bounce_positive_y

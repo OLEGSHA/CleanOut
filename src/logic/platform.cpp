@@ -40,7 +40,15 @@ void Platform::set_movement_fast(bool is_fast) {
 }
 
 void Platform::move(Game& game, Time frame_length) {
-	const Velocity velocity_value = is_moving_fast ? 20 : 10;
+	Velocity max_velocity = 0;
+	for (Ball *ball : game.get_balls()) {
+		Velocity v = ball->get_velocity();
+		if (max_velocity < v) {
+			max_velocity = v;
+		}
+	}
+
+	const Velocity velocity_value = (is_moving_fast ? 2 : 1) * max_velocity;
 
 	int direction = 0;
 

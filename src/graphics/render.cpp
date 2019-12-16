@@ -23,6 +23,22 @@
 #include "../logic/logic.h"
 
 
+const ScreenCoord BRICK_MARGIN = 0.05;
+
+void draw_brick(LevelBlock pos) {
+	draw_rectangle({
+		pos.x + BRICK_MARGIN,
+		pos.y + BRICK_MARGIN
+	}, 1 - 2*BRICK_MARGIN, 1 - 2*BRICK_MARGIN);
+}
+
+void fill_brick(LevelBlock pos) {
+	fill_rectangle({
+		pos.x + BRICK_MARGIN,
+		pos.y + BRICK_MARGIN
+	}, 1 - 2*BRICK_MARGIN, 1 - 2*BRICK_MARGIN);
+}
+
 void Platform::render() {
 	const ScreenCoord radius = 0.3,
 			inner_radius = radius * 0.8;
@@ -75,10 +91,8 @@ void Platform::render() {
 }
 
 void Ball::render() {
-//	set_color(0x33, 0x33, 0x55);
 	set_color(Design::FILL);
 	fill_circle(position, radius);
-//	set_color(0xAA, 0xAA, 0xEE);
 	set_color(Design::OUTLINE);
 	draw_circle(position, radius);
 	draw_arc(position, radius * 0.8, 0, -PI/2);
@@ -88,64 +102,74 @@ void Ball::render() {
 
 void SimpleBrick::render(Game&, LevelBlock pos) {
 	set_color(0x33, 0x55, 0x33);
-	fill_rectangle(pos, 1, 1);
+	fill_brick(pos);
 
 	set_color(0xAA, 0xEE, 0xAA);
-	draw_rectangle(pos, 1, 1);
+	draw_brick(pos);
 }
 
 void SturdyBrick::render(Game&, LevelBlock pos) {
-	set_color(0x38, 0x38, 0x38);
-	fill_rectangle(pos, 1, 1);
+	if (health == 0) {
+		set_color(0x33, 0x55, 0x33);
+		fill_brick(pos);
 
-	ScreenCoord border = (max_health - health + 1) * (0.5f) / (max_health + 1);
+		set_color(0xAA, 0xEE, 0xAA);
+		draw_brick(pos);
+		return;
+	}
 
 	set_color(0x55, 0x55, 0x55);
+	fill_brick(pos);
+
+	ScreenCoord border = ((1 - 2*BRICK_MARGIN) / 2) *
+			(1 - (max_health+1.0f - health) / (max_health+1));
+
+	set_color(0x33, 0x55, 0x33);
 	fill_rectangle(
 		{
-			pos.x + border,
-			pos.y + border
+			pos.x + BRICK_MARGIN + border,
+			pos.y + BRICK_MARGIN + border
 		}, {
-			pos.x + 1 - border,
-			pos.y + 1 - border
+			pos.x + 1 - BRICK_MARGIN - border,
+			pos.y + 1 - BRICK_MARGIN - border
 		}
 	);
 
-	set_color(0xAA, 0xAA, 0xAA);
-	draw_rectangle(pos, 1, 1);
+	set_color(0xEE, 0xEE, 0xEE);
+	draw_brick(pos);
 
 	draw_rectangle(
 		{
-			pos.x + border,
-			pos.y + border
+			pos.x + BRICK_MARGIN + border,
+			pos.y + BRICK_MARGIN + border
 		}, {
-			pos.x + 1 - border,
-			pos.y + 1 - border
+			pos.x + 1 - BRICK_MARGIN - border,
+			pos.y + 1 - BRICK_MARGIN - border
 		}
 	);
 }
 
 void ExplosiveBrick::render(Game&, LevelBlock pos) {
 	set_color(0x88, 0x88, 0x55);
-	fill_rectangle(pos, 1, 1);
+	fill_brick(pos);
 
 	set_color(0x55, 0x55, 0x33);
 	fill_polygon({pos.x + 0.5f, pos.y + 0.5f}, 0.2, 3);
 
 	set_color(0xFF, 0xFF, 0x55);
-	draw_rectangle(pos, 1, 1);
+	draw_brick(pos);
 	draw_polygon({pos.x + 0.5f, pos.y + 0.5f}, 0.2, 3);
 }
 
 void ExtraBallBrick::render(Game&, LevelBlock pos) {
 	set_color(0x55, 0x55, 0x88);
-	fill_rectangle(pos, 1, 1);
+	fill_brick(pos);
 
 	set_color(0x33, 0x33, 0x55);
 	fill_circle({pos.x + 0.5f, pos.y + 0.5f}, 0.2);
 
 	set_color(0x88, 0x88, 0xFF);
-	draw_rectangle(pos, 1, 1);
+	draw_brick(pos);
 	draw_circle({pos.x + 0.5f, pos.y + 0.5f}, 0.2);
 }
 

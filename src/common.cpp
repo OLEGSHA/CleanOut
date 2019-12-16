@@ -20,7 +20,7 @@
 
 
 #define TITLE_MACRO "CleanOut"
-#define VERSION_MACRO "1.0.3"
+#define VERSION_MACRO "1.0.4"
 
 const char *TITLE = TITLE_MACRO;
 const char *VERSION = VERSION_MACRO;
