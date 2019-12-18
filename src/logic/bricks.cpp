@@ -25,11 +25,16 @@ void Brick::destroy(Game& game, LevelBlock pos) {
 	game.level->destroy_brick(pos);
 	do_destroy(game, pos);
 	get_current_attempt()->increase_score(get_reward());
+
+	Bonus *bonus = create_random_bonus(static_cast<LevelPoint>(pos));
+	if (bonus != nullptr) {
+		game.add_bonus(bonus);
+	}
 }
 
 void Brick::do_destroy(Game& game, LevelBlock pos) {
 	game.add_sprite(new BrickBrokenSprite(
-			{pos.x + 0.5f, pos.y + 0.5f}, false
+			pos.add(0.5f, 0.5f), false
 	));
 }
 
@@ -59,14 +64,22 @@ void ExplosiveBrick::do_destroy(Game& game, LevelBlock pos) {
 	}
 
 	game.add_sprite(new BrickExplosionSprite({
-		pos.x + 0.5f, pos.y + 0.5f
+		pos.add(0.5f, 0.5f)
 	}));
 }
 
 void ExtraBallBrick::do_destroy(Game& game, LevelBlock pos) {
 	game.add_sprite(new BrickBrokenSprite(
-			{pos.x + 0.5f, pos.y + 0.5f}, false
+			pos.add(0.5f, 0.5f), false
 	));
 
-	game.add_ball(new Ball({pos.x + 0.5f, pos.y + 0.5f}));
+	Ball *ball = new Ball(pos.add(0.5f, 0.5f));
+
+	float angle = generate_random_float() * 2*PI;
+	ball->set_velocity(
+			ball->get_velocity() * sin(angle),
+			ball->get_velocity() * cos(angle)
+	);
+
+	game.add_ball(ball);
 }

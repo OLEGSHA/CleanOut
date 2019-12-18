@@ -25,6 +25,7 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <functional>
 
 using std::vector;
 using std::list;
@@ -35,6 +36,8 @@ extern const char *TITLE;
 extern const char *VERSION;
 extern const char *COPYRIGHT;
 extern const char *FULL_NAME;
+
+const float PI = 3.1415926f;
 
 /*
  * Checks if min <= x <= max.
@@ -92,52 +95,88 @@ T inline sqr(T x) {
 	return x * x;
 }
 
+template< class Coord >
+struct AbstractPoint {
+	using Self = AbstractPoint<Coord>;
+
+	Coord x, y;
+
+	friend bool operator==(const Self& lhs, const Self& rhs) {
+		return lhs.x == rhs.x && lhs.y == rhs.y;
+	}
+
+	friend bool operator!=(const Self& lhs, const Self& rhs) {
+		return !(lhs == rhs);
+	};
+
+	Self& operator+=(const Self& rhs) {
+		x += rhs.x;
+		y += rhs.y;
+		return *this;
+	}
+
+	friend Self operator+(Self lhs, const Self& rhs) {
+		lhs += rhs;
+		return lhs;
+	}
+
+	Self& operator*=(Coord rhs) {
+		x *= rhs;
+		y *= rhs;
+		return *this;
+	}
+
+	friend Self operator*(Self lhs, Coord rhs) {
+		lhs *= rhs;
+		return lhs;
+	}
+
+	template< class OtherCoord >
+	operator AbstractPoint<OtherCoord>() const {
+		return {
+			static_cast<OtherCoord>(x),
+			static_cast<OtherCoord>(y)
+		};
+	}
+
+	template< class OtherCoord >
+	AbstractPoint<OtherCoord> add(OtherCoord x_mod, OtherCoord y_mod) {
+		return {
+			static_cast<OtherCoord>(x) + x_mod,
+			static_cast<OtherCoord>(y) + y_mod
+		};
+	}
+};
+
 /*
  * A coordinate in the screen coordinate system.
  */
-typedef float ScreenCoord;
+using ScreenCoord = float;
 
 /*
  * A point in the screen coordinate system.
  */
-struct ScreenPoint {
-	ScreenCoord x, y;
-};
+using ScreenPoint = AbstractPoint<ScreenCoord>;
 
 /*
  * Time in seconds.
  */
-typedef float Time;
+using Time = float;
 
 /*
  * An integer coordinate in level coordinate system. Used to represent blocks.
  */
-typedef signed int LevelBlockCoord;
+using LevelBlockCoord = signed int;
+using LevelBlock = AbstractPoint<LevelBlockCoord>;
 
-struct LevelBlock {
-	LevelBlockCoord x, y;
+using LevelCoord = ScreenCoord;
+using LevelPoint = AbstractPoint<LevelCoord>;
 
-	operator ScreenPoint() const {
-		return {static_cast<float>(x), static_cast<float>(y)};
-	}
-};
+using Velocity = ScreenCoord;
+using VelocityVector = AbstractPoint<Velocity>;
 
-typedef float LevelCoord;
-struct LevelPoint {
-	LevelCoord x, y;
-
-	operator ScreenPoint() const {
-		return {x, y};
-	}
-};
-
-typedef float Velocity;
-struct VelocityVector {
-	Velocity x, y;
-};
-
-typedef unsigned int Score;
-typedef unsigned int Lives;
+using Score = unsigned int;
+using Lives = unsigned int;
 
 enum GameState {
 	RUNNING, PAUSED, VICTORY, DEFEAT
@@ -149,6 +188,7 @@ class Level;
 class Platform;
 class Ball;
 class Game;
+class Bonus;
 
 
 #endif /* COMMON_H_ */

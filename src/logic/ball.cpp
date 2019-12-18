@@ -21,79 +21,21 @@
 #include "logic.h"
 
 
-Ball::Ball(LevelPoint position) :
-	position(position)
+const Velocity BALL_ACCELERATION_PER_SECOND = 0.2f;
+const LevelCoord DEFAULT_BALL_RADIUS = 0.5f / 2;
+
+Ball::Ball(LevelPoint position, VelocityVector velocity) :
+	Collideable(position, velocity, DEFAULT_BALL_RADIUS)
 {}
-
-Velocity Ball::get_velocity() const {
-	return velocity;
-}
-
-Velocity Ball::get_velocity_x() const {
-	return velocity_vector.x;
-}
-
-Velocity Ball::get_velocity_y() const {
-	return velocity_vector.y;
-}
-
-void Ball::set_velocity(Velocity x, Velocity y) {
-	turn_velocity(x, y);
-	velocity = sqrt(sqr(x) + sqr(y));
-}
-
-void Ball::turn_velocity(Velocity x, Velocity y) {
-	velocity_vector.x = x;
-	velocity_vector.y = y;
-}
-
-
-void Ball::bounce(
-		Velocity& velocity,
-		LevelCoord& coord,
-		LevelPoint position,
-		bool positive, LevelCoord border, Game* game
-) {
-	if (velocity == 0 || (positive == (velocity > 0))) {
-		return;
-	}
-
-	velocity *= -1;
-
-	LevelCoord margin = radius + 0.01;
-	coord = border + (positive ? +margin : -margin);
-
-	if (game != NULL) game->add_sprite(new CollisionSprite(position));
-}
-
-void Ball::bounce_x(bool positive, LevelCoord border, Game* game) {
-	bounce(
-			velocity_vector.x,
-			position.x,
-			position,
-
-			positive, border, game
-	);
-}
-
-void Ball::bounce_y(bool positive, LevelCoord border, Game* game) {
-	bounce(
-			velocity_vector.y,
-			position.y,
-			position,
-
-			positive, border, game
-	);
-}
 
 void Ball::accelerate(Velocity delta) {
 	velocity += delta;
-	velocity_vector.x += delta * velocity_vector.x/velocity;
-	velocity_vector.y += delta * velocity_vector.y/velocity;
+	velocity_vector.x += delta * velocity_vector.x / velocity;
+	velocity_vector.y += delta * velocity_vector.y / velocity;
 }
 
 
-void Ball::move(Game& game, Time frame_length) {
+void Ball::tick(Game& game, Time frame_length) {
 	if (is_held) {
 		position.x = force_in_range(
 					game.platform.get_position() - game.platform.get_size()/4,
@@ -101,23 +43,86 @@ void Ball::move(Game& game, Time frame_length) {
 					game.platform.get_position() + game.platform.get_size()/4
 		);
 
+		position.y = PLATFORM_HEIGHT + radius;
+
 		return;
 	}
 
-	position.x += velocity_vector.x * frame_length;
-	position.y += velocity_vector.y * frame_length;
-
-	if (position.y >= game.level->get_height() - radius) {
-		bounce_y(false, game.level->get_height(), game);
-	}
-
-	if (position.x <= radius) {
-		bounce_x(true, 0, game);
-	} else if (position.x >= game.level->get_width() - radius) {
-		bounce_x(false, game.level->get_width(), game);
-	}
+	Collideable::tick(game, frame_length);
 
 	accelerate(BALL_ACCELERATION_PER_SECOND * frame_length);
+
+	if (is_invincible()) {
+		invinciblity -= frame_length;
+
+		if (invinciblity < 0) {
+			invinciblity = 0;
+		}
+	}
+}
+
+void Ball::check_collisions(Game& game) {
+	Collideable::check_collisions(game);
+	collide_with_level(game);
+}
+
+void Ball::collide_with_level(Game& game) {
+	LevelBlock min =
+	{
+			static_cast<LevelBlockCoord>(floorf(position.x - radius)),
+			static_cast<LevelBlockCoord>(floorf(position.y - radius)),
+	};
+
+	LevelBlock max =
+	{
+		static_cast<LevelBlockCoord>(floorf(position.x + radius)),
+		static_cast<LevelBlockCoord>(floorf(position.y + radius)),
+	};
+
+	for (LevelBlockCoord x = min.x; x <= max.x; ++x) {
+		for (LevelBlock block = {x, min.y}; block.y <= max.y; ++block.y) {
+			game.level->collide(game, block, *this);
+		}
+	}
+}
+
+void Ball::create_collision_sprite(Game& game) {
+	game.add_sprite(new CollisionSprite(position));
+}
+
+void Ball::on_collide_with_platform(Game& game) {
+	Velocity vx = velocity * 0.9 *
+
+			(position.x - game.platform.get_position())
+			/
+			(game.platform.get_size() / 2.0f + radius)
+
+	;
+
+	set_velocity(vx, sqrt(sqr(velocity) - sqr(vx)));
+
+	create_collision_sprite(game);
+}
+
+void Ball::on_collide_with_level_wall(Game& game) {
+	Collideable::on_collide_with_level_wall(game);
+	create_collision_sprite(game);
+}
+
+void Ball::on_collide_with_level_ceiling(Game& game) {
+	Collideable::on_collide_with_level_ceiling(game);
+	create_collision_sprite(game);
+}
+
+void Ball::on_collide_with_level_floor(Game& game) {
+	if (is_invincible()) {
+		bounce_y(true, radius);
+		create_collision_sprite(game);
+		return;
+	}
+
+	game.add_sprite(new FloorCollisionSprite(*this));
+	die();
 }
 
 void Ball::hold() {
@@ -127,7 +132,7 @@ void Ball::hold() {
 
 	is_held = true;
 	position.y = PLATFORM_HEIGHT + radius;
-	velocity_vector = {0, 0};
+	velocity_vector = {0, -velocity};
 }
 
 void Ball::release() {
@@ -136,4 +141,8 @@ void Ball::release() {
 	}
 
 	is_held = false;
+}
+
+void Ball::add_invincibility(Time time) {
+	invinciblity += time;
 }

@@ -21,10 +21,27 @@
 #include "../logic/logic.h"
 
 
+void Sprite::render(Game& game, Time now) {
+	if (is_dead()) return;
+
+	if (start_time < 0) {
+		start_time = now;
+	}
+
+	do_render(game, now - start_time);
+}
+
 FloorCollisionSprite::FloorCollisionSprite(Ball& reference) :
-Sprite(reference.get_position())
+		Sprite(reference.get_position())
 {
 	start_pos = position;
 	radius = reference.get_radius();
+	velocity = { +reference.get_velocity_x(), +reference.get_velocity_y() };
+}
+
+BonusFloorCollisionSprite::BonusFloorCollisionSprite(Bonus& reference) :
+		Sprite(reference.get_position())
+{
+	start_pos = position;
 	velocity = { +reference.get_velocity_x(), +reference.get_velocity_y() };
 }

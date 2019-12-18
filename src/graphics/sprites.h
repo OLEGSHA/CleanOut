@@ -46,15 +46,7 @@ public:
 		return dead;
 	}
 
-	void render(Game& game, Time now) {
-		if (is_dead()) return;
-
-		if (start_time < 0) {
-			start_time = now;
-		}
-
-		do_render(game, now - start_time);
-	}
+	void render(Game& game, Time now);
 };
 
 class CollisionSprite : public Sprite {
@@ -91,6 +83,25 @@ class BrickExplosionSprite : public Sprite {
 public:
 	BrickExplosionSprite(LevelPoint pos) :
 	Sprite(pos) {}
+
+	void do_render(Game& game, Time time) override;
+};
+
+class BonusCollectedSprite : public Sprite {
+public:
+	BonusCollectedSprite(LevelPoint pos) :
+	Sprite(pos) {}
+
+	void do_render(Game& game, Time time) override;
+};
+
+class BonusFloorCollisionSprite : public Sprite {
+private:
+	LevelPoint start_pos;
+	VelocityVector velocity;
+
+public:
+	BonusFloorCollisionSprite(Bonus& reference);
 
 	void do_render(Game& game, Time time) override;
 };

@@ -22,6 +22,50 @@
 #include "level_builder.h"
 
 
+void setup_logic() {
+	register_bonus_type(
+			[](LevelPoint pos, VelocityVector vel) {
+					return new ExtraLifeBonus(pos, vel);
+			},
+			0.5f
+	);
+
+	register_bonus_type(
+			[](LevelPoint pos, VelocityVector vel) {
+					return new LongerPlatformBonus(pos, vel);
+			},
+			1.0f
+	);
+
+	register_bonus_type(
+			[](LevelPoint pos, VelocityVector vel) {
+					return new ShorterPlatformBonus(pos, vel);
+			},
+			1.0f
+	);
+
+	register_bonus_type(
+			[](LevelPoint pos, VelocityVector vel) {
+					return new InvincibilityBonus(pos, vel);
+			},
+			0.5f
+	);
+
+	register_bonus_type(
+			[](LevelPoint pos, VelocityVector vel) {
+					return new SmallerBallBonus(pos, vel);
+			},
+			1.0f
+	);
+
+	register_bonus_type(
+			[](LevelPoint pos, VelocityVector vel) {
+					return new LargerBallBonus(pos, vel);
+			},
+			1.0f
+	);
+}
+
 void terminate_logic() {
 	end_attempt();
 }
@@ -29,65 +73,8 @@ void terminate_logic() {
 extern const LevelId max_level;
 Level* _create_level(LevelId id);
 
-void collide_ball_with_platform(Ball& ball, Platform& platform, Game& game) {
-	if (!ball.get_is_held() && ball.get_velocity_y() <= 0
-		&& (ball.get_position().y - ball.get_radius()) <= PLATFORM_HEIGHT
-		&& is_in_range(
-			platform.get_min_x() - ball.get_radius(),
-			ball.get_position().x,
-			platform.get_max_x() + ball.get_radius()
-		)
-	) {
-
-		Velocity v = ball.get_velocity();
-		Velocity vx = v * 0.9 *
-
-				(ball.get_position().x - platform.get_position())
-				/
-				(platform.get_size() / 2.0f + ball.get_radius())
-
-		;
-
-		ball.set_velocity(vx, sqrt(v*v - vx*vx));
-
-		game.add_sprite(new CollisionSprite(ball.get_position()));
-	}
-}
-
-void collide_ball_with_level(Ball& ball, Game& game) {
-	LevelPoint pos = ball.get_position();
-	LevelCoord r = ball.get_radius();
-
-	LevelBlock min =
-	{
-			static_cast<LevelBlockCoord>(floorf(pos.x - r)),
-			static_cast<LevelBlockCoord>(floorf(pos.y - r))
-	};
-
-	LevelBlock max =
-	{
-			static_cast<LevelBlockCoord>(floorf(pos.x + r)),
-			static_cast<LevelBlockCoord>(floorf(pos.y + r))
-	};
-
-	for (LevelBlockCoord x = min.x; x <= max.x; ++x) {
-		for (LevelBlock block = {x, min.y}; block.y <= max.y; ++block.y) {
-			game.level->collide(game, block, ball);
-		}
-	}
-}
-
-bool collide_ball_with_floor(Ball& ball, Game& game) {
-	if (ball.get_position().y - ball.get_radius() <= 0) {
-		game.add_sprite(new FloorCollisionSprite(ball));
-
-		return true;
-	}
-
-	return false;
-}
-
 vector<Ball*> __tick__balls_copy;
+list<Bonus*> __tick__bonuses_copy;
 
 void tick(Game& game, Time frame_length) {
 	if (game.state != RUNNING) {
@@ -102,12 +89,9 @@ void tick(Game& game, Time frame_length) {
 	__tick__balls_copy = game.get_balls();
 
 	for (Ball *ball : __tick__balls_copy) {
-		ball->move(game, frame_length);
+		ball->tick(game, frame_length);
 
-		collide_ball_with_platform(*ball, game.platform, game);
-		collide_ball_with_level(*ball, game);
-
-		if (collide_ball_with_floor(*ball, game)) {
+		if (ball->is_dead()) {
 			if (game.get_balls().size() == 1) {
 
 				attempt->remove_lives(1);
@@ -123,6 +107,16 @@ void tick(Game& game, Time frame_length) {
 			} else {
 				game.remove_ball(ball);
 			}
+		}
+	}
+
+	__tick__bonuses_copy = game.get_bonuses();
+
+	for (Bonus *bonus : __tick__bonuses_copy) {
+		bonus->tick(game, frame_length);
+
+		if (bonus->is_dead()) {
+			game.remove_bonus(bonus);
 		}
 	}
 
@@ -223,6 +217,7 @@ Game::Game(Level *level) :
 Game::~Game() {
 	delete_and_clear(balls);
 	delete_and_clear(sprites);
+	delete_and_clear(bonuses);
 
 	delete level;
 }
@@ -260,6 +255,22 @@ void Game::remove_ball(Ball *ball) {
 	}
 
 	delete ball;
+}
+
+void Game::add_bonus(Bonus* bonus) {
+	bonuses.push_back(bonus);
+}
+
+void Game::remove_bonus(Bonus* bonus) {
+	for (auto b = bonuses.cbegin(); b != bonuses.cend(); ++b) {
+		if (*b == bonus) {
+			bonuses.erase(b);
+			// b is now invalid
+			break;
+		}
+	}
+
+	delete bonus;
 }
 
 /*
@@ -333,8 +344,8 @@ Level* _create_level(LevelId id) {
 	} break;
 
 	default:
-		std::cerr << "Invalid level id " << id << ", assuming 3" << std::endl;
-		/* no break */
+		std::cerr << "Invalid level id " << id << ", assuming 3" << std::endl; // @suppress("No break at end of case")
+		// fall-through
 	case 3: {
 
 		level = new Level(id, 20, 16, 10);

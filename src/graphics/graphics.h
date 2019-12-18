@@ -28,9 +28,6 @@
 #include "design.h"
 
 
-const float PI = 3.1415926f;
-
-
 void setup_graphics();
 void terminate_graphics();
 

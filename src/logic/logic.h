@@ -26,6 +26,8 @@
 #include "level.h"
 #include "platform.h"
 #include "ball.h"
+#include "bonus.h"
+#include "../random.h"
 
 
 class Attempt {
@@ -54,6 +56,7 @@ void end_attempt();
 class Game {
 private:
 	vector<Ball*> balls;
+	list<Bonus*> bonuses;
 
 public:
 	Level *level;
@@ -77,10 +80,18 @@ public:
 	const vector<Ball*>& get_balls() const {
 		return balls;
 	}
+
+	void add_bonus(Bonus* bonus);
+	void remove_bonus(Bonus* bonus);
+
+	const list<Bonus*>& get_bonuses() const {
+		return bonuses;
+	}
 };
 
 void tick(Game& game, Time frame_length);
 
+void setup_logic();
 void terminate_logic();
 
 

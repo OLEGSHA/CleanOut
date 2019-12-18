@@ -25,9 +25,10 @@
 class Layer {
 private:
 	Component* const root;
+	bool close_on_escape;
 
 public:
-	Layer(LayoutManager*);
+	Layer(LayoutManager*, bool close_on_escape = false);
 	virtual ~Layer();
 
 	Component*

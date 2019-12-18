@@ -16,15 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "common.h"
+#include "random.h"
 
+#include <random>
 
-#define TITLE_MACRO "CleanOut"
-#define VERSION_MACRO "1.0.5"
+std::mt19937 *generator;
+std::uniform_real_distribution<> floats(0.0f, 1.0f);
 
-const char *TITLE = TITLE_MACRO;
-const char *VERSION = VERSION_MACRO;
+void setup_random() {
+	std::random_device random_device;
+	generator = new std::mt19937(random_device());
+}
 
-const char *COPYRIGHT = "\xA9 2019 Javapony";
+void terminate_random() {
+	delete generator;
+}
 
-const char *FULL_NAME = TITLE_MACRO " " VERSION_MACRO;
+float generate_random_float() {
+	return floats(*generator);
+}
+

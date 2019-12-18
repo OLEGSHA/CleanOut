@@ -93,6 +93,14 @@ void Platform::render() {
 void Ball::render() {
 	set_color(Design::FILL);
 	fill_circle(position, radius);
+
+	if (is_invincible()) {
+		float fraction = (invinciblity > 1.0f) ? 1 : invinciblity / 1.0f;
+
+		set_color(0xAA, 0xAA, 0xAA);
+		fill_circle(position, 0.8f * fraction * radius);
+	}
+
 	set_color(Design::OUTLINE);
 	draw_circle(position, radius);
 	draw_arc(position, radius * 0.8, 0, -PI/2);
@@ -175,11 +183,12 @@ void ExtraBallBrick::render(Game&, LevelBlock pos) {
 
 
 
-void CollisionSprite::do_render(Game& game, Time time) {
+void CollisionSprite::do_render(Game&, Time time) {
 	const Time lifetime = 0.2f;
 
 	if (time > lifetime) {
 		die();
+		return;
 	}
 
 	float fraction = time / lifetime;
@@ -187,11 +196,12 @@ void CollisionSprite::do_render(Game& game, Time time) {
 	fill_circle(position, 0.75f * fraction);
 }
 
-void BrickBrokenSprite::do_render(Game& game, Time time) {
+void BrickBrokenSprite::do_render(Game&, Time time) {
 	const Time lifetime = 0.2f;
 
 	if (time >= lifetime) {
 		die();
+		return;
 	}
 
 	float fraction = 1 - time / lifetime;
@@ -209,11 +219,12 @@ void BrickBrokenSprite::do_render(Game& game, Time time) {
 	fill_rectangle_centered(position, fraction * 1.0f, fraction * 1.0f);
 }
 
-void FloorCollisionSprite::do_render(Game& game, Time time) {
+void FloorCollisionSprite::do_render(Game&, Time time) {
 	const Time lifetime = 0.25f;
 
 	if (time > lifetime) {
 		die();
+		return;
 	}
 
 	Time frame_length = get_frame_length();
@@ -230,13 +241,14 @@ void FloorCollisionSprite::do_render(Game& game, Time time) {
 	draw_circle(position, radius);
 }
 
-void BrickExplosionSprite::do_render(Game& game, Time time) {
+void BrickExplosionSprite::do_render(Game&, Time time) {
 	const Time lifetime = 0.3f;
 	const LevelCoord start_size = 3;
 	const LevelCoord max_size = 3.5f;
 
 	if (time >= lifetime) {
 		die();
+		return;
 	}
 
 	float fraction =
@@ -253,3 +265,79 @@ void BrickExplosionSprite::do_render(Game& game, Time time) {
 	fill_rectangle_centered(position, fraction * 1.0f, fraction * 1.0f);
 }
 
+void BonusCollectedSprite::do_render(Game&, Time time) {
+	const Time lifetime = 0.15f;
+	const LevelCoord start_size = BONUS_RADIUS;
+	const LevelCoord max_size = BONUS_RADIUS * 2;
+
+	if (time >= lifetime) {
+		die();
+		return;
+	}
+
+	LevelCoord size = time / lifetime * (max_size - start_size) + start_size;
+
+	set_color((1 - time / lifetime) * 1.0f, 0x55, 0xCC, 0x55);
+	fill_polygon(position, size * 1.5f, 4);
+
+	set_color((1 - time / lifetime) * 1.0f, 0xAA, 0xEE, 0xAA);
+	fill_polygon(position, size, 4);
+}
+
+void BonusFloorCollisionSprite::do_render(Game&, Time time) {
+	const Time lifetime = 0.1f;
+
+	position += velocity * get_frame_length();
+
+	if (time >= lifetime) {
+		die();
+		return;
+	}
+
+	float fraction = 1 - time / lifetime;
+
+	set_color(fraction * 1.0f, 0xAA, 0xAA, 0xAA);
+	fill_polygon(position, fraction * BONUS_RADIUS, 4);
+}
+
+
+
+void render_base_bonus(Bonus *bonus, Color color) {
+	ScreenPoint pos = bonus->get_position();
+	ScreenCoord r = bonus->get_radius();
+
+	set_color(color);
+	fill_polygon(pos, r, 4);
+
+	set_color(Design::OUTLINE);
+	draw_polygon(pos, r, 4);
+
+	draw_line(
+			pos.add(-r * 0.75f, 0.0f),
+			pos.add(0.0f, +r * 0.75f)
+	);
+}
+
+void ExtraLifeBonus::render() {
+	render_base_bonus(this, Color(0.5f, 0xFF, 0x00, 0x00));
+}
+
+void LongerPlatformBonus::render() {
+	render_base_bonus(this, Color(0.5f, 0x00, 0x00, 0xEE));
+}
+
+void ShorterPlatformBonus::render() {
+	render_base_bonus(this, Color(0.5f, 0x00, 0x00, 0x55));
+}
+
+void InvincibilityBonus::render() {
+	render_base_bonus(this, Design::FILL);
+}
+
+void LargerBallBonus::render() {
+	render_base_bonus(this, Color(0.5f, 0xAA, 0xAA, 0x00));
+}
+
+void SmallerBallBonus::render() {
+	render_base_bonus(this, Color(0.5f, 0x33, 0x33, 0x00));
+}

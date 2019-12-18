@@ -16,15 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "common.h"
+#ifndef RANDOM_H_
+#define RANDOM_H_
 
 
-#define TITLE_MACRO "CleanOut"
-#define VERSION_MACRO "1.0.5"
+void setup_random();
+void terminate_random();
 
-const char *TITLE = TITLE_MACRO;
-const char *VERSION = VERSION_MACRO;
+float generate_random_float();
 
-const char *COPYRIGHT = "\xA9 2019 Javapony";
 
-const char *FULL_NAME = TITLE_MACRO " " VERSION_MACRO;
+#endif /* RANDOM_H_ */

@@ -19,8 +19,6 @@
 #ifndef BUTTON_H_
 #define BUTTON_H_
 
-#include <functional>
-
 #include "component.h"
 
 

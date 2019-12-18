@@ -21,6 +21,8 @@
 #include "workflow.h"
 
 int main() {
+	setup_random();
+	setup_logic();
 	setup_graphics();
 
 	show_main_menu();
@@ -29,6 +31,7 @@ int main() {
 
 	terminate_graphics();
 	terminate_logic();
+	terminate_random();
 
 	return 0;
 }

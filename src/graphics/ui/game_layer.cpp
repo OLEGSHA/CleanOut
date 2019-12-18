@@ -151,6 +151,7 @@ void GameComponent::render_game() {
 	game->platform.render();
 
 	for (Ball *ball : game->get_balls()) ball->render();
+	for (Bonus *bonus : game->get_bonuses()) bonus->render();
 
 	for (
 			auto sprite = game->sprites.begin();

@@ -20,66 +20,48 @@
 #define BALL_H_
 
 #include "../common.h"
+#include "collideable.h"
 
 
 const Velocity DEFAULT_BALL_VELOCITY = 10.0f;
-const Velocity BALL_ACCELERATION_PER_SECOND = 0.2f;
-const LevelCoord DEFAULT_BALL_RADIUS = 0.5f / 2;
 
-class Ball {
+class Ball : public Collideable {
 private:
-	LevelPoint position;
-	Velocity velocity = DEFAULT_BALL_VELOCITY;
-	VelocityVector velocity_vector = {0, DEFAULT_BALL_VELOCITY};
-	LevelCoord radius = DEFAULT_BALL_RADIUS;
-
 	bool is_held = false;
+	Time invinciblity = 0.0f;
 
-	void bounce(
-			Velocity& velocity,
-			LevelCoord& coord,
-			LevelPoint position,
-			bool positive, LevelCoord border, Game* game
-	);
+protected:
+	virtual void check_collisions(Game&) override;
+	virtual void collide_with_level(Game&);
+
+	virtual void on_collide_with_platform(Game&) override;
+	virtual void on_collide_with_level_wall(Game&) override;
+	virtual void on_collide_with_level_ceiling(Game&) override;
+	virtual void on_collide_with_level_floor(Game&) override;
 
 public:
 
-	Ball(LevelPoint position = {0, 0});
+	Ball(
+			LevelPoint position = {0, 0},
+			VelocityVector velocity = {0, DEFAULT_BALL_VELOCITY}
+	);
 
-	void render();
-	void move(Game& level, Time frame_length);
-
-	LevelPoint& get_position() {
-		return position;
-	}
-
-	Velocity get_velocity() const;
-	Velocity get_velocity_x() const;
-	Velocity get_velocity_y() const;
-
-	void set_velocity(Velocity x, Velocity y);
-	void turn_velocity(Velocity x, Velocity y);
-
-	void bounce_x(bool positive, LevelCoord border, Game* game);
-	void bounce_y(bool positive, LevelCoord border, Game* game);
-
-	void bounce_x(bool positive, LevelCoord border, Game& game) {
-		bounce_x(positive, border, &game);
-	}
-
-	void bounce_y(bool positive, LevelCoord border, Game& game) {
-		bounce_y(positive, border, &game);
-	}
+	virtual void render() override;
+	virtual void tick(Game&, Time frame_length) override;
 
 	void accelerate(Velocity delta);
 
-	LevelCoord get_radius() {
-		return radius;
-	}
-
-	void set_radius(unsigned int new_radius) {
+	void set_radius(LevelCoord new_radius) {
 		radius = new_radius;
 	}
+
+	bool is_invincible() {
+		return invinciblity > 0;
+	}
+
+	void add_invincibility(Time time);
+
+	virtual void create_collision_sprite(Game&);
 
 	bool get_is_held() { return is_held; }
 	void hold();

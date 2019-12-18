@@ -34,7 +34,7 @@ Level::Level(
 	size_t length = width * field_height;
 	field = new Brick*[length];
 	for (size_t i = 0; i < length; ++i) {
-		field[i] = NULL;
+		field[i] = nullptr;
 	}
 }
 
@@ -43,7 +43,7 @@ Level::~Level() {
 
 	size_t length = width * field_height;
 	for (size_t i = 0; i < length; ++i) {
-		if (field[i] != NULL) delete field[i];
+		if (field[i] != nullptr) delete field[i];
 	}
 	delete[] field;
 }
@@ -66,7 +66,7 @@ bool Level::check_pos(LevelBlock pos) const {
 
 Brick* Level::get_brick(LevelBlock pos) const {
 	if (check_pos(pos)) {
-		return NULL;
+		return nullptr;
 	}
 
 	return field[get_field_index(pos)];
@@ -79,9 +79,9 @@ void Level::destroy_brick(LevelBlock pos) {
 
 	size_t index = get_field_index(pos);
 	Brick* brick = field[index];
-	field[index] = NULL;
+	field[index] = nullptr;
 
-	if (brick != NULL) {
+	if (brick != nullptr) {
 		bricks_to_delete.push_back(brick);
 
 		if (brick->get_needs_destruction()) {
@@ -91,7 +91,7 @@ void Level::destroy_brick(LevelBlock pos) {
 }
 
 void Level::set_brick(LevelBlock pos, Brick* brick) {
-	if (brick == NULL) {
+	if (brick == nullptr) {
 		return;
 	}
 
@@ -125,7 +125,7 @@ void Level::render(Game& game) {
 	for (LevelBlockCoord x = 0; x < width; ++x) {
 		for (LevelBlock block = {x, 0}; block.y < height; ++block.y) {
 			Brick* brick = get_brick(block);
-			if (brick != NULL) {
+			if (brick != nullptr) {
 				brick->render(game, block);
 			}
 		}
@@ -137,7 +137,7 @@ void Level::render(Game& game) {
 void Level::collide(Game& context, LevelBlock pos, Ball& ball) {
 	Brick* brick = get_brick(pos);
 
-	if (brick == NULL) {
+	if (brick == nullptr) {
 		return;
 	}
 
@@ -190,7 +190,8 @@ void Level::collide(Game& context, LevelBlock pos, Ball& ball) {
 
 	if (collides_vertically || collides_horizontally) {
 
-		bool should_bounce = brick->on_collision(context, pos);
+		bool should_bounce = brick->on_collision(context, pos)
+				&& !ball.is_invincible();
 
 		if (should_bounce) {
 			if (collides_horizontally) {
@@ -198,8 +199,7 @@ void Level::collide(Game& context, LevelBlock pos, Ball& ball) {
 						should_bounce_positive_x,
 						should_bounce_positive_x
 							? pos_float.x + 1
-							: pos_float.x,
-						collides_vertically ? NULL : &context
+							: pos_float.x
 				);
 			}
 
@@ -208,10 +208,11 @@ void Level::collide(Game& context, LevelBlock pos, Ball& ball) {
 						should_bounce_positive_y,
 						should_bounce_positive_y
 							? pos_float.y + 1
-							: pos_float.y,
-						context
+							: pos_float.y
 				);
 			}
+
+			ball.create_collision_sprite(context);
 		}
 	}
 }

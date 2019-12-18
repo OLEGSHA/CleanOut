@@ -50,9 +50,9 @@ void exit_game() {
 }
 
 void show_controls_menu() {
-	Layer *layer = new Layer(new CenterLayoutManager());
+	Layer *layer = new Layer(new CenterLayoutManager(), true);
 
-	Component *center = new Container("Center", new BorderLayoutManager()); // @suppress("Ambiguous problem")
+	Component *center = new Container("Center", new BorderLayoutManager());
 	{
 		center->add_child(
 				new Label(
@@ -140,7 +140,7 @@ const char* allocate_score_string() {
 void show_results_menu(Game& game) {
 	Layer *layer = new Layer(new CenterLayoutManager());
 
-	Component *center = new Container("Center", new BorderLayoutManager()); // @suppress("Ambiguous problem")
+	Component *center = new Container("Center", new BorderLayoutManager());
 	{
 		Component *buttons = new Container("Buttons",
 				new VerticalFlowLayoutManager(), BorderLayoutHints::CENTER);
@@ -190,9 +190,9 @@ void show_results_menu(Game& game) {
 void pause_game(Game& game) {
 	game.state = PAUSED;
 
-	Layer *layer = new Layer(new CenterLayoutManager());
+	Layer *layer = new Layer(new CenterLayoutManager(), true);
 
-	Component *center = new Container("Center", new BorderLayoutManager()); // @suppress("Ambiguous problem")
+	Component *center = new Container("Center", new BorderLayoutManager());
 	{
 		Component *buttons = new Container("Buttons",
 				new VerticalFlowLayoutManager(), BorderLayoutHints::CENTER);

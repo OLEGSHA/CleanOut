@@ -22,8 +22,10 @@
 
 const ScreenCoord MARGIN = 15;
 
-Layer::Layer(LayoutManager *manager) :
-	root(new Component("Root", manager)) {} // @suppress("Ambiguous problem")
+Layer::Layer(LayoutManager *manager, bool close_on_escape) :
+	root(new Component("Root", manager)),
+	close_on_escape(close_on_escape)
+{}
 
 Layer::~Layer() {
 	delete root;
@@ -42,6 +44,17 @@ void Layer::render() {
 }
 
 void Layer::on_key_event(KeyEvent event) {
+	if (
+			close_on_escape
+			&&
+			(event.action == GLFW_PRESS)
+			&&
+			(event.key == GLFW_KEY_ESCAPE)
+	) {
+		remove_top_layer();
+		return;
+	}
+
 	root->process_event(event);
 }
 
