@@ -88,9 +88,11 @@ public:
 };
 
 class BonusCollectedSprite : public Sprite {
+private:
+	bool good;
+
 public:
-	BonusCollectedSprite(LevelPoint pos) :
-	Sprite(pos) {}
+	BonusCollectedSprite(Bonus& reference);
 
 	void do_render(Game& game, Time time) override;
 };
@@ -99,6 +101,7 @@ class BonusFloorCollisionSprite : public Sprite {
 private:
 	LevelPoint start_pos;
 	VelocityVector velocity;
+	bool good;
 
 public:
 	BonusFloorCollisionSprite(Bonus& reference);

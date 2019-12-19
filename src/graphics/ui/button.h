@@ -24,8 +24,6 @@
 
 class Button : public Component {
 
-	using Action = std::function<void()>;
-
 private:
 	Action action;
 
@@ -34,7 +32,6 @@ protected:
 	virtual bool on_event(KeyEvent) override;
 
 public:
-//	Button(const char *name, void (*action)(), LayoutHint hint = NOT_SPECIFIED);
 	Button(
 			const char *name,
 			Action action,

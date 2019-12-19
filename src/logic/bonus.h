@@ -21,11 +21,16 @@
 
 #include "../common.h"
 #include "collideable.h"
+#include "../graphics/design.h"
 
 
 const LevelCoord BONUS_RADIUS = 1.0f / 2 / 1.5f;
 
 class Bonus : public Collideable {
+private:
+	Color color;
+	bool good;
+
 protected:
 	virtual void apply(Game&) = 0;
 
@@ -33,90 +38,45 @@ protected:
 	virtual void on_collide_with_level_floor(Game&) override;
 
 public:
-	Bonus(LevelPoint, VelocityVector);
+	Bonus(LevelPoint, VelocityVector, Color, bool good);
 	virtual ~Bonus() {}
 
+	virtual void render() override;
 	virtual void tick(Game&, Time frame_length) override;
+
+	Color get_color() {
+		return color;
+	}
+
+	bool is_good() {
+		return good;
+	}
+};
+
+class SimpleBonus : public Bonus {
+public:
+	using GameAction = std::function<void(Game&)>;
+
+private:
+	GameAction action;
+
+protected:
+	virtual void apply(Game&) override;
+
+public:
+	SimpleBonus(LevelPoint, VelocityVector, Color, bool good, GameAction);
+	virtual ~SimpleBonus() {}
+
 };
 
 using BonusCreator = std::function<Bonus*(LevelPoint, VelocityVector)>;
 void register_bonus_type(BonusCreator creator, float weight);
+void register_simple_bonus_type(
+		Color, bool good, SimpleBonus::GameAction,
+		float weight
+);
 
 Bonus* create_random_bonus(LevelPoint pos);
-
-
-
-class ExtraLifeBonus : public Bonus {
-protected:
-	virtual void apply(Game&) override;
-
-public:
-	ExtraLifeBonus(LevelPoint pos, VelocityVector vel) :
-		Bonus(pos, vel) {}
-	virtual ~ExtraLifeBonus() {}
-
-	virtual void render() override;
-};
-
-class LongerPlatformBonus : public Bonus {
-protected:
-	virtual void apply(Game&) override;
-
-public:
-	LongerPlatformBonus(LevelPoint pos, VelocityVector vel) :
-		Bonus(pos, vel) {}
-	virtual ~LongerPlatformBonus() {}
-
-	virtual void render() override;
-};
-
-class ShorterPlatformBonus : public Bonus {
-protected:
-	virtual void apply(Game&) override;
-
-public:
-	ShorterPlatformBonus(LevelPoint pos, VelocityVector vel) :
-		Bonus(pos, vel) {}
-	virtual ~ShorterPlatformBonus() {}
-
-	virtual void render() override;
-};
-
-class InvincibilityBonus : public Bonus {
-protected:
-	virtual void apply(Game&) override;
-
-public:
-	InvincibilityBonus(LevelPoint pos, VelocityVector vel) :
-		Bonus(pos, vel) {}
-	virtual ~InvincibilityBonus() {}
-
-	virtual void render() override;
-};
-
-class LargerBallBonus : public Bonus {
-protected:
-	virtual void apply(Game&) override;
-
-public:
-	LargerBallBonus(LevelPoint pos, VelocityVector vel) :
-		Bonus(pos, vel) {}
-	virtual ~LargerBallBonus() {}
-
-	virtual void render() override;
-};
-
-class SmallerBallBonus : public Bonus {
-protected:
-	virtual void apply(Game&) override;
-
-public:
-	SmallerBallBonus(LevelPoint pos, VelocityVector vel) :
-		Bonus(pos, vel) {}
-	virtual ~SmallerBallBonus() {}
-
-	virtual void render() override;
-};
 
 
 #endif /* BONUS_H_ */

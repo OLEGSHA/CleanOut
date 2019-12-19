@@ -27,6 +27,8 @@ private:
 	Component* const root;
 	bool close_on_escape;
 
+	Action close_action = nullptr;
+
 public:
 	Layer(LayoutManager*, bool close_on_escape = false);
 	virtual ~Layer();
@@ -38,6 +40,11 @@ public:
 	void render();
 	void on_key_event(KeyEvent event);
 	void on_resize();
+
+	void set_close_action(Action);
+
+	void on_added();
+	void on_removed();
 };
 
 #endif /* LAYER_H_ */

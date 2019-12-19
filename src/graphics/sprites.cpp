@@ -39,8 +39,14 @@ FloorCollisionSprite::FloorCollisionSprite(Ball& reference) :
 	velocity = { +reference.get_velocity_x(), +reference.get_velocity_y() };
 }
 
+BonusCollectedSprite::BonusCollectedSprite(Bonus& reference) :
+		Sprite(reference.get_position()),
+		good(reference.is_good())
+{}
+
 BonusFloorCollisionSprite::BonusFloorCollisionSprite(Bonus& reference) :
-		Sprite(reference.get_position())
+		Sprite(reference.get_position()),
+		good(reference.is_good())
 {
 	start_pos = position;
 	velocity = { +reference.get_velocity_x(), +reference.get_velocity_y() };

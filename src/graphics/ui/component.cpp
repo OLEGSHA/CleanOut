@@ -144,11 +144,7 @@ void Component::do_layout() {
 }
 
 bool Component::try_moving_focus(KeyEvent event) {
-	if (
-			event.action == GLFW_PRESS
-			&&
-			event.key == GLFW_KEY_TAB
-	) {
+	if (event.is(PRESS, GLFW_KEY_TAB)) {
 		if ((event.mods & GLFW_MOD_SHIFT) == 0) {
 			focus_next();
 		} else {
@@ -158,23 +154,13 @@ bool Component::try_moving_focus(KeyEvent event) {
 		return true;
 	}
 
-	if (
-			event.action == GLFW_PRESS
-			&&
-			event.key == GLFW_KEY_UP
-	) {
+	if (event.is(PRESS, GLFW_KEY_UP)) {
 		focus_previous();
-
 		return true;
 	}
 
-	if (
-			event.action == GLFW_PRESS
-			&&
-			event.key == GLFW_KEY_DOWN
-	) {
+	if (event.is(PRESS, GLFW_KEY_DOWN)) {
 		focus_next();
-
 		return true;
 	}
 

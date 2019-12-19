@@ -27,10 +27,6 @@
 #include <iomanip>
 #include <functional>
 
-using std::vector;
-using std::list;
-using std::cerr;
-
 
 extern const char *TITLE;
 extern const char *VERSION;
@@ -38,6 +34,9 @@ extern const char *COPYRIGHT;
 extern const char *FULL_NAME;
 
 const float PI = 3.1415926f;
+
+using Action = std::function<void(void)>;
+
 
 /*
  * Checks if min <= x <= max.
@@ -66,7 +65,7 @@ T inline force_in_range(T min, T x, T max) {
  */
 
 template< class T >
-void inline delete_and_clear(vector<T*>& col) {
+void inline delete_and_clear(std::vector<T*>& col) {
 	for (T *ptr : col) {
 		delete ptr;
 	}
@@ -79,7 +78,7 @@ void inline delete_and_clear(vector<T*>& col) {
  */
 
 template< class T >
-void inline delete_and_clear(list<T*>& col) {
+void inline delete_and_clear(std::list<T*>& col) {
 	for (T *ptr : col) {
 		delete ptr;
 	}

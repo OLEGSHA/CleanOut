@@ -35,7 +35,7 @@ void render_layers() {
 
 void add_layer(Layer* layer) {
 	layers.push_back(layer);
-	layer->on_resize();
+	layer->on_added();
 }
 
 void remove_top_layer() {
@@ -45,6 +45,7 @@ void remove_top_layer() {
 
 	Layer *layer = layers.back();
 	layers.pop_back();
+	layer->on_removed();
 	delete layer;
 }
 

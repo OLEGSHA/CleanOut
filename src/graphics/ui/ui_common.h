@@ -21,12 +21,63 @@
 
 #include "../../common.h"
 
+// To define macros in KeyEvent.is
+#include <GLFW/glfw3.h>
+
+#include <cstdarg>
+
+
+using GLKey = int;
+enum GLKeyAction {
+		PRESS, RELEASE, ANY
+};
+
 
 struct KeyEvent {
 	int key;
 	int scanmode;
 	int action;
 	int mods;
+
+	inline bool is(
+			GLKeyAction accepted_action,
+			std::size_t key_count,
+			...
+	) {
+		if (accepted_action == ANY) {
+			if (
+					(action != GLFW_PRESS) && (action != GLFW_RELEASE)
+			) {
+				return false;
+			}
+		} else {
+			if (
+					(accepted_action == PRESS) != (action == GLFW_PRESS)
+			) {
+				return false;
+			}
+		}
+
+		va_list accepted_keys;
+		va_start(accepted_keys, key_count);
+
+		for (std::size_t i = 0; i < key_count; ++i) {
+			if (key == va_arg(accepted_keys, GLKey)) { // @suppress("C-Style cast instead of C++ cast")
+				return true;
+			}
+		}
+
+		va_end(accepted_keys);
+
+		return false;
+	}
+
+	inline bool is(
+				GLKeyAction accepted_action,
+				GLKey key
+	) {
+		return is(accepted_action, 1, key);
+	}
 };
 
 

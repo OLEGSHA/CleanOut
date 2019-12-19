@@ -76,7 +76,7 @@ Layer* create_game_layer(Game *game) {
 
 		ui->add_child(
 				new Display("ScoreDisplay", RIGHT,
-						"Score: ", 3, &Attempt::get_score)
+						"Score: ", 5, &Attempt::get_score)
 		);
 
 		std::stringstream stream;
@@ -175,15 +175,9 @@ void GameComponent::tick() {
 }
 
 bool GameComponent::on_event(KeyEvent event) {
-	if (
-			(
-					event.key == GLFW_KEY_A || event.key == GLFW_KEY_D
-					||
-					event.key == GLFW_KEY_LEFT || event.key == GLFW_KEY_RIGHT
-			)
-			&&
-			(event.action == GLFW_PRESS || event.action == GLFW_RELEASE)
-	) {
+	if (event.is(ANY, 4,
+			GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_LEFT, GLFW_KEY_RIGHT
+	)) {
 		game->platform.set_movement(
 				event.key == GLFW_KEY_A || event.key == GLFW_KEY_LEFT,
 				event.action == GLFW_PRESS,
@@ -192,34 +186,23 @@ bool GameComponent::on_event(KeyEvent event) {
 		return true;
 	}
 
-	if (
-			(event.key == GLFW_KEY_LEFT_SHIFT ||
-					event.key == GLFW_KEY_RIGHT_SHIFT)
-			&&
-			(event.action == GLFW_PRESS || event.action == GLFW_RELEASE)
-	) {
+	if (event.is(ANY, 2,
+			GLFW_KEY_LEFT_SHIFT, GLFW_KEY_RIGHT_SHIFT
+	)) {
 		game->platform.set_movement_fast(
 			event.action == GLFW_PRESS
 		);
 		return true;
 	}
 
-	if (
-			(event.key == GLFW_KEY_SPACE)
-			&&
-			(event.action == GLFW_PRESS)
-	) {
+	if (event.is(PRESS, GLFW_KEY_SPACE)) {
 		for (Ball *ball : game->get_balls()) {
 			ball->release();
 		}
 		return true;
 	}
 
-	if (
-			(event.key == GLFW_KEY_ESCAPE)
-			&&
-			(event.action == GLFW_PRESS)
-	) {
+	if (event.is(PRESS, GLFW_KEY_ESCAPE)) {
 		pause_game(*game);
 	}
 

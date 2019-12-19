@@ -24,14 +24,25 @@
 const Velocity BALL_ACCELERATION_PER_SECOND = 0.2f;
 const LevelCoord DEFAULT_BALL_RADIUS = 0.5f / 2;
 
+const Velocity BALL_RADIUS_CHANGE_SPEED = 0.25f;
+
 Ball::Ball(LevelPoint position, VelocityVector velocity) :
-	Collideable(position, velocity, DEFAULT_BALL_RADIUS)
+	Collideable(position, velocity, DEFAULT_BALL_RADIUS),
+	desired_radius(DEFAULT_BALL_RADIUS)
 {}
 
 void Ball::accelerate(Velocity delta) {
 	velocity += delta;
 	velocity_vector.x += delta * velocity_vector.x / velocity;
 	velocity_vector.y += delta * velocity_vector.y / velocity;
+}
+
+void Ball::set_radius(LevelCoord new_radius) {
+	radius = new_radius;
+}
+
+void Ball::set_radius_animated(LevelCoord new_radius) {
+	desired_radius = new_radius;
 }
 
 
@@ -46,6 +57,26 @@ void Ball::tick(Game& game, Time frame_length) {
 		position.y = PLATFORM_HEIGHT + radius;
 
 		return;
+	}
+
+	if (radius != desired_radius) {
+		bool is_growing = radius < desired_radius;
+		LevelCoord old_radius = radius;
+
+		radius += (is_growing
+						? +BALL_RADIUS_CHANGE_SPEED
+						: -BALL_RADIUS_CHANGE_SPEED)
+				* frame_length;
+
+		set_velocity(
+				get_velocity_x() * old_radius / radius,
+				get_velocity_y() * old_radius / radius
+		);
+
+		// Do not overshoot
+		if ((radius < desired_radius) != is_growing) {
+			radius = desired_radius;
+		}
 	}
 
 	Collideable::tick(game, frame_length);

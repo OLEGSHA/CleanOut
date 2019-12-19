@@ -191,6 +191,9 @@ void pause_game(Game& game) {
 	game.state = PAUSED;
 
 	Layer *layer = new Layer(new CenterLayoutManager(), true);
+	layer->set_close_action([&game](void) {
+		game.state = RUNNING;
+	});
 
 	Component *center = new Container("Center", new BorderLayoutManager());
 	{
@@ -201,10 +204,7 @@ void pause_game(Game& game) {
 
 			Button *play_button = new Button(
 					"Continue",
-					[&game](void) {
-						game.state = RUNNING;
-						remove_top_layer();
-					}
+					remove_top_layer
 			);
 			play_button->grab_focus();
 			buttons->add_child(play_button);

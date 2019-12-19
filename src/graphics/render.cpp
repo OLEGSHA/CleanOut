@@ -269,6 +269,7 @@ void BonusCollectedSprite::do_render(Game&, Time time) {
 	const Time lifetime = 0.15f;
 	const LevelCoord start_size = BONUS_RADIUS;
 	const LevelCoord max_size = BONUS_RADIUS * 2;
+	unsigned int vertices = good ? 4 : 5;
 
 	if (time >= lifetime) {
 		die();
@@ -276,16 +277,27 @@ void BonusCollectedSprite::do_render(Game&, Time time) {
 	}
 
 	LevelCoord size = time / lifetime * (max_size - start_size) + start_size;
+	float alpha = (1 - time / lifetime) * 1.0f;
 
-	set_color((1 - time / lifetime) * 1.0f, 0x55, 0xCC, 0x55);
-	fill_polygon(position, size * 1.5f, 4);
+	if (good) {
+		set_color(alpha, 0x55, 0xCC, 0x55);
+	} else {
+		set_color(alpha, 0xCC, 0x55, 0x55);
+	}
 
-	set_color((1 - time / lifetime) * 1.0f, 0xAA, 0xEE, 0xAA);
-	fill_polygon(position, size, 4);
+	fill_polygon(position, size * 1.5f, vertices);
+
+	if (good) {
+		set_color(alpha, 0xAA, 0xEE, 0xAA);
+	} else {
+		set_color(alpha, 0xEE, 0xAA, 0xAA);
+	}
+	fill_polygon(position, size, vertices);
 }
 
 void BonusFloorCollisionSprite::do_render(Game&, Time time) {
 	const Time lifetime = 0.1f;
+	unsigned int vertices = good ? 4 : 5;
 
 	position += velocity * get_frame_length();
 
@@ -297,47 +309,17 @@ void BonusFloorCollisionSprite::do_render(Game&, Time time) {
 	float fraction = 1 - time / lifetime;
 
 	set_color(fraction * 1.0f, 0xAA, 0xAA, 0xAA);
-	fill_polygon(position, fraction * BONUS_RADIUS, 4);
+	fill_polygon(position, fraction * BONUS_RADIUS, vertices);
 }
 
 
 
-void render_base_bonus(Bonus *bonus, Color color) {
-	ScreenPoint pos = bonus->get_position();
-	ScreenCoord r = bonus->get_radius();
+void Bonus::render() {
+	unsigned int vertices = good ? 4 : 5;
 
 	set_color(color);
-	fill_polygon(pos, r, 4);
+	fill_polygon(position, radius, vertices);
 
 	set_color(Design::OUTLINE);
-	draw_polygon(pos, r, 4);
-
-	draw_line(
-			pos.add(-r * 0.75f, 0.0f),
-			pos.add(0.0f, +r * 0.75f)
-	);
-}
-
-void ExtraLifeBonus::render() {
-	render_base_bonus(this, Color(0.5f, 0xFF, 0x00, 0x00));
-}
-
-void LongerPlatformBonus::render() {
-	render_base_bonus(this, Color(0.5f, 0x00, 0x00, 0xEE));
-}
-
-void ShorterPlatformBonus::render() {
-	render_base_bonus(this, Color(0.5f, 0x00, 0x00, 0x55));
-}
-
-void InvincibilityBonus::render() {
-	render_base_bonus(this, Design::FILL);
-}
-
-void LargerBallBonus::render() {
-	render_base_bonus(this, Color(0.5f, 0xAA, 0xAA, 0x00));
-}
-
-void SmallerBallBonus::render() {
-	render_base_bonus(this, Color(0.5f, 0x33, 0x33, 0x00));
+	draw_polygon(position, radius, vertices);
 }

@@ -30,6 +30,8 @@ private:
 	bool is_held = false;
 	Time invinciblity = 0.0f;
 
+	LevelCoord desired_radius;
+
 protected:
 	virtual void check_collisions(Game&) override;
 	virtual void collide_with_level(Game&);
@@ -51,9 +53,8 @@ public:
 
 	void accelerate(Velocity delta);
 
-	void set_radius(LevelCoord new_radius) {
-		radius = new_radius;
-	}
+	void set_radius(LevelCoord);
+	void set_radius_animated(LevelCoord);
 
 	bool is_invincible() {
 		return invinciblity > 0;

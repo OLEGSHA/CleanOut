@@ -18,9 +18,36 @@
 
 #include "platform.h"
 
-
 #include "logic.h"
 
+
+const LevelCoord DEFAULT_PLATFORM_SIZE = 3;
+const Velocity PLAFORM_RADIUS_CHANGE_SPEED = 1.0f;
+
+Platform::Platform() :
+	size(DEFAULT_PLATFORM_SIZE),
+	position(0),
+	desired_size(size)
+{}
+
+Platform::~Platform() {}
+
+void Platform::set_position(LevelCoord new_position) {
+	position = new_position;
+}
+
+void Platform::set_size(LevelCoord new_size) {
+	size = new_size;
+}
+
+void Platform::set_size_animated(LevelCoord new_size) {
+	desired_size = new_size;
+}
+
+void Platform::reset(Game& game) {
+	size = desired_size = DEFAULT_PLATFORM_SIZE;
+	position = game.level->get_width() / 2;
+}
 
 LevelCoord Platform::get_min_x() const {
 	return position - size/2;
@@ -39,7 +66,21 @@ void Platform::set_movement_fast(bool is_fast) {
 	is_moving_fast = is_fast;
 }
 
-void Platform::move(Game& game, Time frame_length) {
+void Platform::tick(Game& game, Time frame_length) {
+	if (size != desired_size) {
+		bool is_growing = size < desired_size;
+
+		size += (is_growing
+						? +PLAFORM_RADIUS_CHANGE_SPEED
+						: -PLAFORM_RADIUS_CHANGE_SPEED)
+				* frame_length;
+
+		// Do not overshoot
+		if ((size < desired_size) != is_growing) {
+			size = desired_size;
+		}
+	}
+
 	Velocity max_velocity = 0;
 	for (Ball *ball : game.get_balls()) {
 		Velocity v = ball->get_velocity();

@@ -47,9 +47,7 @@ void Layer::on_key_event(KeyEvent event) {
 	if (
 			close_on_escape
 			&&
-			(event.action == GLFW_PRESS)
-			&&
-			(event.key == GLFW_KEY_ESCAPE)
+			event.is(PRESS, GLFW_KEY_ESCAPE)
 	) {
 		remove_top_layer();
 		return;
@@ -64,4 +62,16 @@ void Layer::on_resize() {
 			MARGIN, MARGIN,
 			window_size.width - 2*MARGIN, window_size.height - 2*MARGIN
 	));
+}
+
+void Layer::set_close_action(Action action) {
+	close_action = action;
+}
+
+void Layer::on_added() {
+	on_resize();
+}
+
+void Layer::on_removed() {
+	close_action();
 }

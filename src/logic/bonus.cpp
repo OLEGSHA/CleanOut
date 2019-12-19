@@ -29,9 +29,18 @@
 
 const Velocity BONUS_ACCELERATION_PER_SECOND = 15.0f;
 
-Bonus::Bonus(LevelPoint position, VelocityVector velocity) :
-		Collideable(position, velocity, BONUS_RADIUS)
-{}
+const GLfloat BONUS_FILL_ALPHA = 0.5f;
+
+Bonus::Bonus(
+		LevelPoint position, VelocityVector velocity,
+		Color color, bool good
+) :
+		Collideable(position, velocity, BONUS_RADIUS),
+		color(color),
+		good(good)
+{
+	this->color.alpha = BONUS_FILL_ALPHA;
+}
 
 void Bonus::tick(Game& game, Time frame_length) {
 	Collideable::tick(game, frame_length);
@@ -43,13 +52,30 @@ void Bonus::tick(Game& game, Time frame_length) {
 
 void Bonus::on_collide_with_platform(Game& game) {
 	apply(game);
-	game.add_sprite(new BonusCollectedSprite(position));
+	game.add_sprite(new BonusCollectedSprite(*this));
 	die();
 }
 
 void Bonus::on_collide_with_level_floor(Game& game) {
 	game.add_sprite(new BonusFloorCollisionSprite(*this));
 	die();
+}
+
+/*
+ * Simple Bonus
+ */
+
+SimpleBonus::SimpleBonus(
+		LevelPoint position, VelocityVector velocity,
+		Color color, bool good,
+		GameAction action
+) :
+		Bonus(position, velocity, color, good),
+		action(action)
+{}
+
+void SimpleBonus::apply(Game& game) {
+	action(game);
 }
 
 /*
@@ -67,6 +93,18 @@ float bonus_registry_total_weight = 0;
 void register_bonus_type(BonusCreator creator, float weight) {
 	bonus_registry.push_back({creator, weight});
 	bonus_registry_total_weight += weight;
+}
+
+void register_simple_bonus_type(
+		Color color, bool good, SimpleBonus::GameAction action,
+		float weight
+) {
+	register_bonus_type(
+			[color, good, action](LevelPoint pos, VelocityVector vel) {
+					return new SimpleBonus(pos, vel, color, good, action);
+			},
+			weight
+	);
 }
 
 const Velocity BONUS_VELOCITY = 10.0f;
@@ -98,42 +136,4 @@ Bonus* create_random_bonus(LevelPoint pos) {
 			BONUS_VELOCITY * sinf(angle),
 			BONUS_VELOCITY * cosf(angle)
 	});
-}
-
-
-
-void ExtraLifeBonus::apply(Game&) {
-	get_current_attempt()->add_lives(1);
-}
-
-const float PLATFORM_SIZE_BONUS_FACTOR = 1.5f;
-
-void LongerPlatformBonus::apply(Game& game) {
-	game.platform.set_size(game.platform.get_size() * PLATFORM_SIZE_BONUS_FACTOR);
-}
-
-void ShorterPlatformBonus::apply(Game& game) {
-	game.platform.set_size(game.platform.get_size() / PLATFORM_SIZE_BONUS_FACTOR);
-}
-
-const Time INVINSIBILITY_BONUS = 5.0f;
-
-void InvincibilityBonus::apply(Game& game) {
-	for (Ball *ball : game.get_balls()) {
-		ball->add_invincibility(INVINSIBILITY_BONUS);
-	}
-}
-
-const float BALL_SIZE_BONUS_FACTOR = 1.5f;
-
-void LargerBallBonus::apply(Game& game) {
-	for (Ball *ball : game.get_balls()) {
-		ball->set_radius(ball->get_radius() * BALL_SIZE_BONUS_FACTOR);
-	}
-}
-
-void SmallerBallBonus::apply(Game& game) {
-	for (Ball *ball : game.get_balls()) {
-		ball->set_radius(ball->get_radius() / BALL_SIZE_BONUS_FACTOR);
-	}
 }

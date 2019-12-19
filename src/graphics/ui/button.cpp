@@ -59,11 +59,7 @@ void Button::render_self() {
 }
 
 bool Button::on_event(KeyEvent event) {
-	if (
-			event.action == GLFW_PRESS
-			&&
-			(event.key == GLFW_KEY_SPACE || event.key == GLFW_KEY_ENTER)
-	) {
+	if (event.is(PRESS, 2, GLFW_KEY_SPACE, GLFW_KEY_ENTER)) {
 		action();
 		return true;
 	}

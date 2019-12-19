@@ -55,8 +55,8 @@ void end_attempt();
 
 class Game {
 private:
-	vector<Ball*> balls;
-	list<Bonus*> bonuses;
+	std::vector<Ball*> balls;
+	std::list<Bonus*> bonuses;
 
 public:
 	Level *level;
@@ -65,7 +65,7 @@ public:
 
 	GameState state;
 
-	list<Sprite*> sprites;
+	std::list<Sprite*> sprites;
 
 	Game(Level*);
 	~Game();
@@ -77,14 +77,14 @@ public:
 	void reset_balls();
 	void remove_ball(Ball*);
 
-	const vector<Ball*>& get_balls() const {
+	const std::vector<Ball*>& get_balls() const {
 		return balls;
 	}
 
 	void add_bonus(Bonus* bonus);
 	void remove_bonus(Bonus* bonus);
 
-	const list<Bonus*>& get_bonuses() const {
+	const std::list<Bonus*>& get_bonuses() const {
 		return bonuses;
 	}
 };

@@ -26,22 +26,29 @@ const LevelCoord PLATFORM_HEIGHT = 0.75f;
 
 class Platform {
 private:
-	LevelCoord size = 3;
-	LevelCoord position = 1 + size/2;
+	LevelCoord size;
+	LevelCoord position;
+
+	LevelCoord desired_size;
 
 	bool is_moving_left = false, is_moving_right = false;
 	bool is_moving_fast = false;
 
 public:
 
+	Platform();
+	~Platform();
+
 	void render();
-	void move(Game& level, Time frame_length);
+	void tick(Game& level, Time frame_length);
+	void reset(Game&);
 
 	LevelCoord get_position() const { return position; }
 	LevelCoord get_size()     const { return size; }
 
-	void set_position(LevelCoord p) { position = p; }
-	void set_size(LevelCoord s)     { size = s; }
+	void set_position(LevelCoord);
+	void set_size(LevelCoord);
+	void set_size_animated(LevelCoord);
 
 	LevelCoord get_min_x() const;
 	LevelCoord get_max_x() const;

@@ -22,45 +22,73 @@
 #include "level_builder.h"
 
 
+const float PLATFORM_SIZE_BONUS_FACTOR = 1.5f;
+const float BALL_SIZE_BONUS_FACTOR = 1.5f;
+const Time INVINSIBILITY_BONUS = 5.0f;
+
 void setup_logic() {
-	register_bonus_type(
-			[](LevelPoint pos, VelocityVector vel) {
-					return new ExtraLifeBonus(pos, vel);
+	register_simple_bonus_type(
+			Color(0xEE0000), true,
+			[](Game&) {
+				get_current_attempt()->add_lives(1);
 			},
 			0.5f
 	);
 
-	register_bonus_type(
-			[](LevelPoint pos, VelocityVector vel) {
-					return new LongerPlatformBonus(pos, vel);
+	const Color PLATFORM_SIZE_COLOR(0x3333EE);
+
+	register_simple_bonus_type(
+			PLATFORM_SIZE_COLOR, true,
+			[](Game& game) {
+				game.platform.set_size_animated(
+						game.platform.get_size() * PLATFORM_SIZE_BONUS_FACTOR
+				);
 			},
 			1.0f
 	);
 
-	register_bonus_type(
-			[](LevelPoint pos, VelocityVector vel) {
-					return new ShorterPlatformBonus(pos, vel);
+	register_simple_bonus_type(
+			PLATFORM_SIZE_COLOR, false,
+			[](Game& game) {
+				game.platform.set_size_animated(
+						game.platform.get_size() / PLATFORM_SIZE_BONUS_FACTOR
+				);
 			},
 			1.0f
 	);
 
-	register_bonus_type(
-			[](LevelPoint pos, VelocityVector vel) {
-					return new InvincibilityBonus(pos, vel);
+	register_simple_bonus_type(
+			Color(0xEEEEEE), true,
+			[](Game& game) {
+				for (Ball *ball : game.get_balls()) {
+					ball->add_invincibility(INVINSIBILITY_BONUS);
+				}
 			},
 			0.5f
 	);
 
-	register_bonus_type(
-			[](LevelPoint pos, VelocityVector vel) {
-					return new SmallerBallBonus(pos, vel);
+	const Color BALL_SIZE_COLOR(0xEEEE33);
+
+	register_simple_bonus_type(
+			BALL_SIZE_COLOR, true,
+			[](Game& game) {
+				for (Ball *ball : game.get_balls()) {
+					ball->set_radius_animated(
+							ball->get_radius() * BALL_SIZE_BONUS_FACTOR
+					);
+				}
 			},
 			1.0f
 	);
 
-	register_bonus_type(
-			[](LevelPoint pos, VelocityVector vel) {
-					return new LargerBallBonus(pos, vel);
+	register_simple_bonus_type(
+			BALL_SIZE_COLOR, false,
+			[](Game& game) {
+				for (Ball *ball : game.get_balls()) {
+					ball->set_radius_animated(
+							ball->get_radius() / BALL_SIZE_BONUS_FACTOR
+					);
+				}
 			},
 			1.0f
 	);
@@ -73,8 +101,8 @@ void terminate_logic() {
 extern const LevelId max_level;
 Level* _create_level(LevelId id);
 
-vector<Ball*> __tick__balls_copy;
-list<Bonus*> __tick__bonuses_copy;
+std::vector<Ball*> __tick__balls_copy;
+std::list<Bonus*> __tick__bonuses_copy;
 
 void tick(Game& game, Time frame_length) {
 	if (game.state != RUNNING) {
@@ -84,7 +112,7 @@ void tick(Game& game, Time frame_length) {
 	Attempt *attempt = get_current_attempt();
 
 	Level& level = *(game.level);
-	game.platform.move(game, frame_length);
+	game.platform.tick(game, frame_length);
 
 	__tick__balls_copy = game.get_balls();
 
@@ -241,7 +269,7 @@ void Game::add_held_ball() {
 void Game::reset_balls() {
 	delete_and_clear(balls);
 
-	platform.set_position(level->get_width() / 2);
+	platform.reset(*this);
 	add_held_ball();
 }
 
