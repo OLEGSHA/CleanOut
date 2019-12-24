@@ -190,7 +190,7 @@ void Level::collide(Game& context, LevelBlock pos, Ball& ball) {
 
 	if (collides_vertically || collides_horizontally) {
 
-		bool should_bounce = brick->on_collision(context, pos)
+		bool should_bounce = brick->on_collision(context, pos, ball)
 				&& !ball.is_invincible();
 
 		if (should_bounce) {

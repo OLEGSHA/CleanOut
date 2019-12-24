@@ -32,6 +32,10 @@ private:
 
 	LevelCoord desired_radius;
 
+	bool tick_held(Game&, Time frame_length);
+	void tick_radius(Game&, Time frame_length);
+	void tick_invincibility(Game&, Time frame_length);
+
 protected:
 	virtual void check_collisions(Game&) override;
 	virtual void collide_with_level(Game&);
@@ -53,10 +57,16 @@ public:
 
 	void accelerate(Velocity delta);
 
+	using Mass = LevelCoord;
+	Mass get_mass() const;
+
+	using Impulse = LevelCoord;
+	Impulse get_impulse() const;
+
 	void set_radius(LevelCoord);
 	void set_radius_animated(LevelCoord);
 
-	bool is_invincible() {
+	bool is_invincible() const {
 		return invinciblity > 0;
 	}
 
@@ -64,7 +74,7 @@ public:
 
 	virtual void create_collision_sprite(Game&);
 
-	bool get_is_held() { return is_held; }
+	bool get_is_held() const { return is_held; }
 	void hold();
 	void release();
 };

@@ -42,7 +42,7 @@ public:
 
 	void destroy(Game&, LevelBlock);
 
-	virtual bool on_collision(Game&, LevelBlock);
+	virtual bool on_collision(Game&, LevelBlock, Ball&);
 	virtual void render(Game&, LevelBlock) = 0;
 	virtual Score get_reward() const {
 		return 1;
@@ -56,13 +56,15 @@ public:
 
 class SturdyBrick : public Brick {
 private:
-	const unsigned int max_health;
-	unsigned int health;
+	using Health = LevelCoord;
+
+	const Health max_health;
+	Health health;
 public:
 	SturdyBrick(unsigned int extra_hits) :
 	max_health(extra_hits), health(extra_hits) {}
 
-	virtual bool on_collision(Game&, LevelBlock) override;
+	virtual bool on_collision(Game&, LevelBlock, Ball&) override;
 	virtual void render(Game&, LevelBlock) override;
 	virtual Score get_reward() const override {
 		return max_health;

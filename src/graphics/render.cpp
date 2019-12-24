@@ -317,6 +317,9 @@ void BonusFloorCollisionSprite::do_render(Game&, Time time) {
 void Bonus::render() {
 	unsigned int vertices = good ? 4 : 5;
 
+	set_color(0.2f, 0x00, 0x00, 0x00);
+	fill_polygon(position.add(0.1f, -0.1f), radius, vertices);
+
 	set_color(color);
 	fill_polygon(position, radius, vertices);
 

@@ -38,16 +38,23 @@ void Brick::do_destroy(Game& game, LevelBlock pos) {
 	));
 }
 
-bool Brick::on_collision(Game& game, LevelBlock pos) {
+bool Brick::on_collision(Game& game, LevelBlock pos, Ball&) {
 	destroy(game, pos);
 	return true;
 }
 
-bool SturdyBrick::on_collision(Game& game, LevelBlock pos) {
-	if (health == 0) {
+const float HEALTH_DECREASE_PER_UNIT_IMPULSE =
+		0.75f // default descrease
+		/
+		(1.0f * DEFAULT_BALL_VELOCITY); // default impulse
+
+bool SturdyBrick::on_collision(Game& game, LevelBlock pos, Ball& ball) {
+	Health decrease = ball.get_impulse() * HEALTH_DECREASE_PER_UNIT_IMPULSE;
+
+	if (health < decrease) {
 		destroy(game, pos);
 	} else {
-		health--;
+		health -= decrease;
 	}
 
 	return true;
@@ -57,7 +64,7 @@ void ExplosiveBrick::do_destroy(Game& game, LevelBlock pos) {
 	for (LevelBlockCoord x = pos.x - 1; x <= pos.x + 1; ++x) {
 		for (LevelBlock block = {x, pos.y - 1}; block.y <= pos.y + 1; ++block.y) {
 			Brick* brick = game.level->get_brick(block);
-			if (brick != NULL) {
+			if (brick != nullptr) {
 				brick->destroy(game, block);
 			}
 		}

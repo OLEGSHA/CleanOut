@@ -21,7 +21,8 @@
 #include "logic.h"
 
 
-const Velocity BALL_ACCELERATION_PER_SECOND = 0.2f;
+//const Velocity BALL_ACCELERATION_PER_SECOND = 0.2f;
+const Velocity BALL_ACCELERATION_PER_SECOND_PER_UNIT_MASS = 0.2f;
 const LevelCoord DEFAULT_BALL_RADIUS = 0.5f / 2;
 
 const Velocity BALL_RADIUS_CHANGE_SPEED = 0.25f;
@@ -37,6 +38,21 @@ void Ball::accelerate(Velocity delta) {
 	velocity_vector.y += delta * velocity_vector.y / velocity;
 }
 
+const float SPHERE_VOLUME_COEFF = 4 * PI / 3;
+// Make sure that the ball masses 1 by default
+const float BALL_DENSITY =
+		1.0f /
+		(SPHERE_VOLUME_COEFF *
+		DEFAULT_BALL_RADIUS * DEFAULT_BALL_RADIUS * DEFAULT_BALL_RADIUS);
+
+Ball::Mass Ball::get_mass() const {
+	return BALL_DENSITY * SPHERE_VOLUME_COEFF * radius * radius * radius;
+}
+
+Ball::Impulse Ball::get_impulse() const {
+	return get_mass() * get_velocity();
+}
+
 void Ball::set_radius(LevelCoord new_radius) {
 	radius = new_radius;
 }
@@ -47,6 +63,20 @@ void Ball::set_radius_animated(LevelCoord new_radius) {
 
 
 void Ball::tick(Game& game, Time frame_length) {
+	if (tick_held(game, frame_length)) return;
+	tick_radius(game, frame_length);
+
+	Collideable::tick(game, frame_length);
+
+	accelerate(
+			BALL_ACCELERATION_PER_SECOND_PER_UNIT_MASS *
+			frame_length / get_mass()
+	);
+
+	tick_invincibility(game, frame_length);
+}
+
+bool Ball::tick_held(Game& game, Time) {
 	if (is_held) {
 		position.x = force_in_range(
 					game.platform.get_position() - game.platform.get_size()/4,
@@ -56,21 +86,27 @@ void Ball::tick(Game& game, Time frame_length) {
 
 		position.y = PLATFORM_HEIGHT + radius;
 
-		return;
+		return true;
 	}
 
+	return false;
+}
+
+void Ball::tick_radius(Game&, Time frame_length) {
 	if (radius != desired_radius) {
 		bool is_growing = radius < desired_radius;
-		LevelCoord old_radius = radius;
+		Mass old_mass = get_mass();
 
 		radius += (is_growing
 						? +BALL_RADIUS_CHANGE_SPEED
 						: -BALL_RADIUS_CHANGE_SPEED)
 				* frame_length;
 
+		float ratio = old_mass / get_mass();
+
 		set_velocity(
-				get_velocity_x() * old_radius / radius,
-				get_velocity_y() * old_radius / radius
+				get_velocity_x() * ratio,
+				get_velocity_y() * ratio
 		);
 
 		// Do not overshoot
@@ -78,11 +114,9 @@ void Ball::tick(Game& game, Time frame_length) {
 			radius = desired_radius;
 		}
 	}
+}
 
-	Collideable::tick(game, frame_length);
-
-	accelerate(BALL_ACCELERATION_PER_SECOND * frame_length);
-
+void Ball::tick_invincibility(Game&, Time frame_length) {
 	if (is_invincible()) {
 		invinciblity -= frame_length;
 

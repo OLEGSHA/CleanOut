@@ -23,7 +23,7 @@
 
 
 const float PLATFORM_SIZE_BONUS_FACTOR = 1.5f;
-const float BALL_SIZE_BONUS_FACTOR = 1.5f;
+const float BALL_SIZE_BONUS_FACTOR = 1.3f;
 const Time INVINSIBILITY_BONUS = 5.0f;
 
 void setup_logic() {
