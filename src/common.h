@@ -119,6 +119,17 @@ struct AbstractPoint {
 		return lhs;
 	}
 
+	Self& operator*=(const Self& rhs) {
+		x *= rhs.x;
+		y *= rhs.y;
+		return *this;
+	}
+
+	friend Self operator*(Self lhs, const Self& rhs) {
+		lhs *= rhs;
+		return lhs;
+	}
+
 	Self& operator*=(Coord rhs) {
 		x *= rhs;
 		y *= rhs;

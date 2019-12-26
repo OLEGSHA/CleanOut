@@ -54,6 +54,11 @@ struct Color {
 
 };
 
+struct Gradient {
+	Color from, to;
+	Color get(float) const;
+};
+
 namespace Design {
 	const Color BACKGROUND = Color(0xFF333333);
 	const Color BACKGROUND_TRANSPARENT = Color(0.85f, 0x333333);

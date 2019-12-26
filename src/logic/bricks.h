@@ -60,9 +60,10 @@ private:
 
 	const Health max_health;
 	Health health;
+	Health display_health;
 public:
 	SturdyBrick(unsigned int extra_hits) :
-	max_health(extra_hits), health(extra_hits) {}
+	max_health(extra_hits), health(extra_hits), display_health(extra_hits) {}
 
 	virtual bool on_collision(Game&, LevelBlock, Ball&) override;
 	virtual void render(Game&, LevelBlock) override;

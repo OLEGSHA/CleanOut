@@ -68,6 +68,13 @@ void fill_rectangle_centered(
 		ScreenCoord width, ScreenCoord height
 );
 
+void do_pseudo_sector(
+		ScreenPoint center, ScreenCoord radius,
+		unsigned int vertices,
+		float start, float end,
+		bool fill
+);
+
 void fill_polygon(ScreenPoint center, ScreenCoord radius, unsigned int vertices);
 void draw_polygon(ScreenPoint center, ScreenCoord radius, unsigned int vertices);
 

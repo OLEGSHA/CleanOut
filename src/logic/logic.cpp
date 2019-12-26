@@ -23,7 +23,7 @@
 
 
 const float PLATFORM_SIZE_BONUS_FACTOR = 1.5f;
-const float BALL_SIZE_BONUS_FACTOR = 1.3f;
+const float BALL_MASS_BONUS_FACTOR = 1.5f;
 const Time INVINSIBILITY_BONUS = 5.0f;
 
 void setup_logic() {
@@ -73,8 +73,8 @@ void setup_logic() {
 			BALL_SIZE_COLOR, true,
 			[](Game& game) {
 				for (Ball *ball : game.get_balls()) {
-					ball->set_radius_animated(
-							ball->get_radius() * BALL_SIZE_BONUS_FACTOR
+					ball->set_mass_animated(
+							ball->get_mass() * BALL_MASS_BONUS_FACTOR
 					);
 				}
 			},
@@ -85,8 +85,8 @@ void setup_logic() {
 			BALL_SIZE_COLOR, false,
 			[](Game& game) {
 				for (Ball *ball : game.get_balls()) {
-					ball->set_radius_animated(
-							ball->get_radius() / BALL_SIZE_BONUS_FACTOR
+					ball->set_mass_animated(
+							ball->get_mass() / BALL_MASS_BONUS_FACTOR
 					);
 				}
 			},

@@ -43,6 +43,9 @@ void Platform::render() {
 	const ScreenCoord radius = 0.3,
 			inner_radius = radius * 0.8;
 
+	glPushMatrix();
+	glTranslatef(0, visual.height, 0);
+
 	set_color(Design::FILL);
 	fill_rounded_rectangle(
 			{
@@ -88,6 +91,8 @@ void Platform::render() {
 					PLATFORM_HEIGHT - radius + inner_radius
 			}
 	);
+
+	glPopMatrix();
 }
 
 void Ball::render() {
@@ -104,6 +109,11 @@ void Ball::render() {
 	set_color(Design::OUTLINE);
 	draw_circle(position, radius);
 	draw_arc(position, radius * 0.8, 0, -PI/2);
+}
+
+void Level::render_corpse(LevelBlock pos) const {
+	set_color(0x55, 0x55, 0x55);
+	draw_brick(pos);
 }
 
 
@@ -129,10 +139,20 @@ void SturdyBrick::render(Game&, LevelBlock pos) {
 	set_color(0x55, 0x55, 0x55);
 	fill_brick(pos);
 
-	ScreenCoord border = ((1 - 2*BRICK_MARGIN) / 2) *
-			(1 - (max_health+1.0f - health) / (max_health+1));
+	const Velocity DISPLAY_HEALTH_SPEED_PER_UNIT_DIFFERENCE_PER_SECOND = 3;
+	display_health +=
+			DISPLAY_HEALTH_SPEED_PER_UNIT_DIFFERENCE_PER_SECOND *
+			(health - display_health) * get_frame_length();
 
-	set_color(0x33, 0x55, 0x33);
+	ScreenCoord border = ((1 - 2*BRICK_MARGIN) / 2) *
+			(1 - (max_health+1.0f - display_health) / (max_health+1));
+
+	const Gradient GRADIENT = {
+			Color(0xFF335533),
+			Color(0xFFEEAA33)
+	};
+
+	set_color(GRADIENT.get(1 - 1 / (display_health - health + 1)));
 	fill_rectangle(
 		{
 			pos.x + BRICK_MARGIN + border,
@@ -317,12 +337,24 @@ void BonusFloorCollisionSprite::do_render(Game&, Time time) {
 void Bonus::render() {
 	unsigned int vertices = good ? 4 : 5;
 
+	const float RADIANS_PER_SECOND = 5;
+	float angle = glfwGetTime() * RADIANS_PER_SECOND;
+
 	set_color(0.2f, 0x00, 0x00, 0x00);
-	fill_polygon(position.add(0.1f, -0.1f), radius, vertices);
+	do_pseudo_sector(
+			position.add(0.1f, -0.1f), radius, vertices,
+			angle, angle + 2*PI, true
+	);
 
 	set_color(color);
-	fill_polygon(position, radius, vertices);
+	do_pseudo_sector(
+			position, radius, vertices,
+			angle, angle + 2*PI, true
+	);
 
 	set_color(Design::OUTLINE);
-	draw_polygon(position, radius, vertices);
+	do_pseudo_sector(
+			position, radius, vertices,
+			angle, angle + 2*PI, false
+	);
 }

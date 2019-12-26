@@ -23,3 +23,21 @@ GLfloat normalize_channel(unsigned int channel_0_thru_255) {
 	return channel_0_thru_255 / static_cast<GLfloat>(0xFF);
 }
 
+inline GLfloat mix_channels(GLfloat a, GLfloat b, float param) {
+	return (a * (1 - param)) + (b * param);
+}
+
+#include <iostream>
+
+Color Gradient::get(float param) const {
+	if (param < 0 || param > 1) {
+		std::cerr << "wtf " << param << std::endl;
+	}
+	return Color(
+			mix_channels(from.alpha, to.alpha, param),
+			mix_channels(from.red, to.red, param),
+			mix_channels(from.green, to.green, param),
+			mix_channels(from.blue, to.blue, param)
+	);
+}
+

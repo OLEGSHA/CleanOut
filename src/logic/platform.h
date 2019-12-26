@@ -28,11 +28,21 @@ class Platform {
 private:
 	LevelCoord size;
 	LevelCoord position;
+	LevelCoord desired_position;
+	Velocity velocity;
+
+	struct {
+		LevelCoord height;
+		Velocity velocity;
+	} visual;
 
 	LevelCoord desired_size;
 
 	bool is_moving_left = false, is_moving_right = false;
 	bool is_moving_fast = false;
+
+	void tick_visual(Game&, Time frame_length);
+	void move(Game&, Time frame_length);
 
 public:
 
@@ -52,6 +62,12 @@ public:
 
 	LevelCoord get_min_x() const;
 	LevelCoord get_max_x() const;
+
+	void bounce(Ball& ball);
+
+	LevelCoord get_min_x_visual() const;
+	LevelCoord get_max_x_visual() const;
+	LevelCoord get_height_visual() const;
 
 	void set_movement(bool is_left, bool new_state, bool is_fast);
 	void set_movement_fast(bool is_fast);

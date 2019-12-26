@@ -33,8 +33,10 @@ Level::Level(
 {
 	size_t length = width * field_height;
 	field = new Brick*[length];
+	corpses_field = new bool[length];
 	for (size_t i = 0; i < length; ++i) {
 		field[i] = nullptr;
+		corpses_field[i] = false;
 	}
 }
 
@@ -46,6 +48,7 @@ Level::~Level() {
 		if (field[i] != nullptr) delete field[i];
 	}
 	delete[] field;
+	delete[] corpses_field;
 }
 
 
@@ -87,6 +90,8 @@ void Level::destroy_brick(LevelBlock pos) {
 		if (brick->get_needs_destruction()) {
 			bricks_to_destroy--;
 		}
+
+		corpses_field[index] = true;
 	}
 }
 
@@ -112,6 +117,15 @@ bool Level::is_level_cleared() const {
 	return bricks_to_destroy == 0;
 }
 
+bool Level::has_corpse(LevelBlock pos) const {
+	if (check_pos(pos)) {
+		return false;
+	}
+
+	return corpses_field[get_field_index(pos)];
+}
+
+
 
 void Level::delete_pending_bricks() {
 	for (Brick* brick : bricks_to_delete) {
@@ -127,6 +141,10 @@ void Level::render(Game& game) {
 			Brick* brick = get_brick(block);
 			if (brick != nullptr) {
 				brick->render(game, block);
+			} else {
+				if (has_corpse(block)) {
+					render_corpse(block);
+				}
 			}
 		}
 	}

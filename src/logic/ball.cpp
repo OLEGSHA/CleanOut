@@ -21,9 +21,11 @@
 #include "logic.h"
 
 
-//const Velocity BALL_ACCELERATION_PER_SECOND = 0.2f;
 const Velocity BALL_ACCELERATION_PER_SECOND_PER_UNIT_MASS = 0.2f;
 const LevelCoord DEFAULT_BALL_RADIUS = 0.5f / 2;
+
+const LevelCoord MAX_BALL_RADIUS = 1.5f / 2;
+const LevelCoord MIN_BALL_RADIUS = 0.2f / 2;
 
 const Velocity BALL_RADIUS_CHANGE_SPEED = 0.25f;
 
@@ -45,8 +47,16 @@ const float BALL_DENSITY =
 		(SPHERE_VOLUME_COEFF *
 		DEFAULT_BALL_RADIUS * DEFAULT_BALL_RADIUS * DEFAULT_BALL_RADIUS);
 
-Ball::Mass Ball::get_mass() const {
+Ball::Mass Ball::calculate_mass(LevelCoord radius) const {
 	return BALL_DENSITY * SPHERE_VOLUME_COEFF * radius * radius * radius;
+}
+
+LevelCoord Ball::calculate_radius(Mass mass) const {
+	return cbrtf(mass / BALL_DENSITY / SPHERE_VOLUME_COEFF);
+}
+
+Ball::Mass Ball::get_mass() const {
+	return calculate_mass(radius);
 }
 
 Ball::Impulse Ball::get_impulse() const {
@@ -58,7 +68,19 @@ void Ball::set_radius(LevelCoord new_radius) {
 }
 
 void Ball::set_radius_animated(LevelCoord new_radius) {
-	desired_radius = new_radius;
+	desired_radius = force_in_range(
+			MIN_BALL_RADIUS,
+			new_radius,
+			MAX_BALL_RADIUS
+	);
+}
+
+void Ball::set_mass(Ball::Mass new_mass) {
+	set_radius(calculate_radius(new_mass));
+}
+
+void Ball::set_mass_animated(Ball::Mass new_mass) {
+	set_radius_animated(calculate_radius(new_mass));
 }
 
 
@@ -165,7 +187,7 @@ void Ball::on_collide_with_platform(Game& game) {
 	;
 
 	set_velocity(vx, sqrt(sqr(velocity) - sqr(vx)));
-
+	game.platform.bounce(*this);
 	create_collision_sprite(game);
 }
 

@@ -26,6 +26,10 @@
 const Velocity DEFAULT_BALL_VELOCITY = 10.0f;
 
 class Ball : public Collideable {
+public:
+	using Impulse = LevelCoord;
+	using Mass = LevelCoord;
+
 private:
 	bool is_held = false;
 	Time invinciblity = 0.0f;
@@ -35,6 +39,9 @@ private:
 	bool tick_held(Game&, Time frame_length);
 	void tick_radius(Game&, Time frame_length);
 	void tick_invincibility(Game&, Time frame_length);
+
+	Mass calculate_mass(LevelCoord) const;
+	LevelCoord calculate_radius(Mass) const;
 
 protected:
 	virtual void check_collisions(Game&) override;
@@ -57,14 +64,15 @@ public:
 
 	void accelerate(Velocity delta);
 
-	using Mass = LevelCoord;
 	Mass get_mass() const;
 
-	using Impulse = LevelCoord;
 	Impulse get_impulse() const;
 
 	void set_radius(LevelCoord);
 	void set_radius_animated(LevelCoord);
+
+	void set_mass(Mass);
+	void set_mass_animated(Mass);
 
 	bool is_invincible() const {
 		return invinciblity > 0;

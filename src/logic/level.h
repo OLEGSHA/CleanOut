@@ -33,6 +33,7 @@ private:
 	LevelBlockCoord width, height;
 
 	Brick** field;
+	bool* corpses_field;
 	LevelBlockCoord field_height;
 	std::list<Brick*> bricks_to_delete = std::list<Brick*>();
 
@@ -47,6 +48,8 @@ private:
 	 * Computes the field 1D index for the given valid (see check_pos()) block.
 	 */
 	size_t get_field_index(LevelBlock) const;
+
+	void render_corpse(LevelBlock) const;
 
 public:
 	Level(
@@ -70,6 +73,8 @@ public:
 	void destroy_brick(LevelBlock);
 
 	bool is_level_cleared() const;
+
+	bool has_corpse(LevelBlock) const;
 
 	/*
 	 * Handles a single collision if necessary.
