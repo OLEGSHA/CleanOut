@@ -73,5 +73,5 @@ void Layer::on_added() {
 }
 
 void Layer::on_removed() {
-	close_action();
+	if (close_action != nullptr) close_action();
 }
